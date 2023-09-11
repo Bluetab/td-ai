@@ -18,7 +18,7 @@ defmodule TdAiWeb.IndexController do
       "mapping" => mapping
     } = index_params
 
-    with ~c"ok" <- TdAi.Python.run(collection_name, embedding, mapping),
+    with ~c"ok" <- TdAi.Python.load_collection(collection_name, embedding, mapping),
          {:ok, %Index{} = index} <- Indices.create_index(index_params) do
       conn
       |> put_status(:created)
