@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :td_ai, TdAi.Repo,
   username: "postgres",
-  password: "yourStrong(!)Password",
+  password: "postgres",
   hostname: "localhost",
   database: "td_ai_dev",
   stacktrace: true,
@@ -77,3 +77,18 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+config :td_ai, :python, %{
+  api: %{
+    host: "https://test.truedat.io",
+    username: "netto",
+    password: "netto123"
+  },
+  milvus: %{
+    alias: "default",
+    user: "username",
+    password: "password",
+    host: "localhost",
+    port: "19530"
+  }
+}

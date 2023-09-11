@@ -4,7 +4,7 @@ defmodule TdAiWeb.IndexController do
   alias TdAi.Indices
   alias TdAi.Indices.Index
 
-  action_fallback TdAiWeb.FallbackController
+  action_fallback(TdAiWeb.FallbackController)
 
   def index(conn, _params) do
     indices = Indices.list_indices()
@@ -12,7 +12,14 @@ defmodule TdAiWeb.IndexController do
   end
 
   def create(conn, %{"index" => index_params}) do
-    with {:ok, %Index{} = index} <- Indices.create_index(index_params) do
+    %{
+      "collection_name" => collection_name,
+      "embedding" => embedding,
+      "mapping" => mapping
+    } = index_params
+
+    with ~c"ok" <- TdAi.Python.run(collection_name, embedding, mapping),
+         {:ok, %Index{} = index} <- Indices.create_index(index_params) do
       conn
       |> put_status(:created)
       |> put_resp_header("location", ~p"/api/indices/#{index}")

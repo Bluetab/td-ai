@@ -35,3 +35,5 @@ td_ai-*.tar
 npm-debug.log
 /assets/node_modules/
 
+__pycache__
+.tool-versions
