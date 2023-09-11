@@ -21,9 +21,10 @@ defmodule TdAiWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", TdAiWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", TdAiWeb do
+    pipe_through :api
+    resources "/indices", IndexController, except: [:new, :edit]
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:td_ai, :dev_routes) do
