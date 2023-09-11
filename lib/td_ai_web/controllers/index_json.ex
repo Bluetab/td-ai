@@ -20,7 +20,10 @@ defmodule TdAiWeb.IndexJSON do
       id: index.id,
       collection_name: index.collection_name,
       embedding: index.embedding,
-      mapping: index.mapping
+      mapping: index.mapping,
+      metric_type: index.metric_type,
+      index_type: index.index_type,
+      index_params: index.index_params
     }
   end
 end

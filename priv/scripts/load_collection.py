@@ -29,11 +29,16 @@ def translate(target):
     else:
         return target
 
-def load(collection_name, embedding, mapping, config):
-    collection_name = translate(collection_name)
-    embedding = translate(embedding)
-    mapping = translate(mapping)
+def load(params, config):
+    params = translate(params)
     config = translate(config)
+
+    collection_name = params["collection_name"]
+    embedding = params["embedding"]
+    mapping = params["mapping"]
+    metric_type = params["metric_type"]
+    index_type = params["index_type"]
+    config_index_params = params["index_params"]
 
     print("Connecting to Milvus")
     connections.connect(
@@ -77,10 +82,16 @@ def load(collection_name, embedding, mapping, config):
         shards_num=2
     )
 
+    # index_params = {
+    #     "metric_type":"L2",
+    #     "index_type":"IVF_FLAT",
+    #     "params":{"nlist":1024}
+    # }
+    
     index_params = {
-        "metric_type":"L2",
-        "index_type":"IVF_FLAT",
-        "params":{"nlist":1024}
+        "metric_type": metric_type,
+        "index_type": index_type,
+        "params": config_index_params
     }
     
     collection.create_index(

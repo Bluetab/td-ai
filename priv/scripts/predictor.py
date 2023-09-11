@@ -29,12 +29,14 @@ def translate(target):
     else:
         return target
 
-def predict(collection_name, embedding, mapping, data_structure_id, config):
-    collection_name = translate(collection_name)
-    embedding = translate(embedding)
-    mapping = translate(mapping)
-    data_structure_id = translate(data_structure_id)
+def predict(params, config):
+    params = translate(params)
     config = translate(config)
+
+    collection_name = params["collection_name"]
+    embedding = params["embedding"]
+    mapping = params["mapping"]
+    data_structure_id = params["data_structure_id"]
 
     print("Connecting to Milvus")
     connections.connect(
@@ -70,7 +72,11 @@ def predict(collection_name, embedding, mapping, data_structure_id, config):
 
     search_param = {
         "anns_field": "embedding_vector",
-        "param": {"metric_type": "L2", "params": {"nprobe": 10}, "offset": 0},
+        "param": {
+            "metric_type": "L2",
+            "params": {"nprobe": 10},
+            "offset": 0
+        },
         "limit": 10,
         #"expr": "word_count <= 11000",
     }

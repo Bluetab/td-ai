@@ -12,15 +12,7 @@ defmodule TdAiWeb.PredictionController do
   end
 
   def create(conn, %{"prediction" => prediction_params}) do
-    IO.inspect(prediction_params, label: "prediction_params")
-
-    %{
-      "index_id" => index_id,
-      "mapping" => mapping,
-      "data_structure_id" => data_structure_id
-    } = prediction_params
-
-    with [_ | _] = result <- TdAi.Python.predict(index_id, mapping, data_structure_id),
+    with [_ | _] = result <- TdAi.Python.predict(prediction_params),
          prediction_params <- Map.put(prediction_params, "result", result),
          {:ok, %Prediction{} = prediction} <-
            Predictions.create_prediction(prediction_params) do
