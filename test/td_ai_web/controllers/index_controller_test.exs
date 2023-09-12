@@ -8,12 +8,16 @@ defmodule TdAiWeb.IndexControllerTest do
   @create_attrs %{
     collection_name: "some collection_name",
     embedding: "some embedding",
-    mapping: ["option1", "option2"]
+    mapping: ["option1", "option2"],
+    index_type: "some index_type",
+    metric_type: "some metric_type"
   }
   @update_attrs %{
     collection_name: "some updated collection_name",
     embedding: "some updated embedding",
-    mapping: ["option1"]
+    mapping: ["option1"],
+    index_type: "some updated index_type",
+    metric_type: "some updated metric_type"
   }
   @invalid_attrs %{collection_name: nil, embedding: nil, mapping: nil}
 

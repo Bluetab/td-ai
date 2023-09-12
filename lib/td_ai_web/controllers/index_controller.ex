@@ -12,7 +12,9 @@ defmodule TdAiWeb.IndexController do
   end
 
   def create(conn, %{"index" => index_params}) do
-    with ~c"ok" <- TdAi.Python.load_collection(index_params),
+    python = Application.get_env(:td_ai, :python_module)
+
+    with ~c"ok" <- python.load_collection(index_params),
          {:ok, %Index{} = index} <- Indices.create_index(index_params) do
       conn
       |> put_status(:created)

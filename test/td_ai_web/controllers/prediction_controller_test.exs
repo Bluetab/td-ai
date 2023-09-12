@@ -39,7 +39,7 @@ defmodule TdAiWeb.PredictionControllerTest do
                "id" => ^id,
                "data_structure_id" => 42,
                "mapping" => ["option1", "option2"],
-               "result" => []
+               "result" => [%{"distance" => 10, "id" => 1}]
              } = json_response(conn, 200)["data"]
     end
 
@@ -52,7 +52,10 @@ defmodule TdAiWeb.PredictionControllerTest do
   describe "update prediction" do
     setup [:create_prediction]
 
-    test "renders prediction when data is valid", %{conn: conn, prediction: %Prediction{id: id} = prediction} do
+    test "renders prediction when data is valid", %{
+      conn: conn,
+      prediction: %Prediction{id: id} = prediction
+    } do
       conn = put(conn, ~p"/api/predictions/#{prediction}", prediction: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 

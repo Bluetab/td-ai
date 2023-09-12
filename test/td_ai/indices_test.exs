@@ -8,7 +8,13 @@ defmodule TdAi.IndicesTest do
 
     import TdAi.IndicesFixtures
 
-    @invalid_attrs %{collection_name: nil, embedding: nil, mapping: nil}
+    @invalid_attrs %{
+      collection_name: nil,
+      embedding: nil,
+      mapping: nil,
+      index_type: nil,
+      metric_type: nil
+    }
 
     test "list_indices/0 returns all indices" do
       index = index_fixture()
@@ -21,12 +27,20 @@ defmodule TdAi.IndicesTest do
     end
 
     test "create_index/1 with valid data creates a index" do
-      valid_attrs = %{collection_name: "some collection_name", embedding: "some embedding", mapping: ["option1", "option2"]}
+      valid_attrs = %{
+        collection_name: "some collection_name",
+        embedding: "some embedding",
+        mapping: ["option1", "option2"],
+        index_type: "some index_type",
+        metric_type: "some metric_type"
+      }
 
       assert {:ok, %Index{} = index} = Indices.create_index(valid_attrs)
       assert index.collection_name == "some collection_name"
       assert index.embedding == "some embedding"
       assert index.mapping == ["option1", "option2"]
+      assert index.index_type == "some index_type"
+      assert index.metric_type == "some metric_type"
     end
 
     test "create_index/1 with invalid data returns error changeset" do
@@ -35,12 +49,21 @@ defmodule TdAi.IndicesTest do
 
     test "update_index/2 with valid data updates the index" do
       index = index_fixture()
-      update_attrs = %{collection_name: "some updated collection_name", embedding: "some updated embedding", mapping: ["option1"]}
+
+      update_attrs = %{
+        collection_name: "some updated collection_name",
+        embedding: "some updated embedding",
+        mapping: ["option1"],
+        index_type: "some updated index_type",
+        metric_type: "some updated metric_type"
+      }
 
       assert {:ok, %Index{} = index} = Indices.update_index(index, update_attrs)
       assert index.collection_name == "some updated collection_name"
       assert index.embedding == "some updated embedding"
       assert index.mapping == ["option1"]
+      assert index.index_type == "some updated index_type"
+      assert index.metric_type == "some updated metric_type"
     end
 
     test "update_index/2 with invalid data returns error changeset" do
