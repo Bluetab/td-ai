@@ -4,7 +4,7 @@ import Config
 config :td_ai, TdAi.Repo,
   username: "postgres",
   password: "postgres",
-  hostname: "localhost",
+  hostname: "postgres",
   database: "td_ai_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
