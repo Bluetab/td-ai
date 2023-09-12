@@ -1,4 +1,7 @@
 defmodule TdAi.Python do
+  @moduledoc """
+    Module for interacting with TdAi python scripts
+  """
   alias TdAi.Indices
 
   def load_collection(params) do

@@ -1,4 +1,7 @@
 defmodule TdAi.Predictions.Prediction do
+  @moduledoc """
+    This modules defines the Prediction schema
+  """
   use Ecto.Schema
   import Ecto.Changeset
 

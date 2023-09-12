@@ -1,4 +1,7 @@
 defmodule TdAiWeb.Telemetry do
+  @moduledoc """
+    TdAiWeb Telemetry
+  """
   use Supervisor
   import Telemetry.Metrics
 

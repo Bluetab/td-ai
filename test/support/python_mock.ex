@@ -1,4 +1,8 @@
 defmodule TdAi.PythonMock do
+  @moduledoc """
+  Mock for TdAi.Python Module
+  """
+
   def load_collection(_params) do
     ~c"ok"
   end

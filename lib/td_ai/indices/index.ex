@@ -1,4 +1,7 @@
 defmodule TdAi.Indices.Index do
+  @moduledoc """
+    This modules defines the Index schema
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
