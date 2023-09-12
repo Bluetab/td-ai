@@ -37,7 +37,9 @@ defmodule TdAi.PredictionsTest do
       prediction = prediction_fixture()
       update_attrs = %{result: [], mapping: ["option1"], data_structure_id: 43}
 
-      assert {:ok, %Prediction{} = prediction} = Predictions.update_prediction(prediction, update_attrs)
+      assert {:ok, %Prediction{} = prediction} =
+               Predictions.update_prediction(prediction, update_attrs)
+
       assert prediction.result == []
       assert prediction.mapping == ["option1"]
       assert prediction.data_structure_id == 43
@@ -45,7 +47,10 @@ defmodule TdAi.PredictionsTest do
 
     test "update_prediction/2 with invalid data returns error changeset" do
       prediction = prediction_fixture()
-      assert {:error, %Ecto.Changeset{}} = Predictions.update_prediction(prediction, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Predictions.update_prediction(prediction, @invalid_attrs)
+
       assert prediction == Predictions.get_prediction!(prediction.id)
     end
 
