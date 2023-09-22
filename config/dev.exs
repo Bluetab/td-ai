@@ -19,7 +19,7 @@ config :td_ai, TdAi.Repo,
 config :td_ai, TdAiWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: 4000],
+  http: [ip: {0, 0, 0, 0}, port: 4015],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
@@ -78,17 +78,7 @@ config :phoenix, :plug_init_mode, :runtime
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
-config :td_ai, :python, %{
-  api: %{
-    host: "https://test.truedat.io",
-    username: "netto",
-    password: "netto123"
-  },
-  milvus: %{
-    alias: "default",
-    user: "username",
-    password: "password",
-    host: "localhost",
-    port: "19530"
-  }
+config :td_ai, :milvus, %{
+  host: "http://localhost",
+  port: "9091"
 }

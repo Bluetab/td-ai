@@ -17,12 +17,15 @@ defmodule TdAiWeb.Router do
   scope "/", TdAiWeb do
     pipe_through(:browser)
 
-    get("/", PageController, :home)
+    live("/", HomeLive)
   end
 
   # Other scopes may use custom stacks.
   scope "/api", TdAiWeb do
     pipe_through(:api)
+
+    get "/ping", PingController, :ping
+
     resources("/indices", IndexController, except: [:new, :edit])
     resources("/predictions", PredictionController, except: [:new, :edit])
   end

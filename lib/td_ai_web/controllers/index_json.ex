@@ -23,7 +23,8 @@ defmodule TdAiWeb.IndexJSON do
       mapping: index.mapping,
       metric_type: index.metric_type,
       index_type: index.index_type,
-      index_params: index.index_params
+      index_params: index.index_params,
+      status: index.status
     }
   end
 end

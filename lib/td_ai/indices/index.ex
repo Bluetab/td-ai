@@ -12,6 +12,7 @@ defmodule TdAi.Indices.Index do
     field(:metric_type, :string)
     field(:index_type, :string)
     field(:index_params, :map)
+    field(:status, :string)
 
     timestamps()
   end
@@ -25,8 +26,15 @@ defmodule TdAi.Indices.Index do
       :mapping,
       :metric_type,
       :index_type,
-      :index_params
+      :index_params,
+      :status
     ])
-    |> validate_required([:collection_name, :embedding, :mapping, :metric_type, :index_type])
+    |> validate_required([
+      :collection_name,
+      :embedding,
+      :mapping,
+      :metric_type,
+      :index_type
+    ])
   end
 end

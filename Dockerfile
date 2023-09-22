@@ -1,5 +1,5 @@
 ### Minimal runtime image based on alpine:3.18
-ARG RUNTIME_BASE=alpine:3.18
+ARG RUNTIME_BASE=debian:bullseye
 
 FROM ${RUNTIME_BASE}
 
@@ -13,11 +13,11 @@ WORKDIR /app
 
 COPY _build/${MIX_ENV}/*.tar.gz ./
 
-RUN apk --no-cache add ncurses-libs openssl bash ca-certificates libstdc++ && \
-    rm -rf /var/cache/apk/* && \
+RUN apt-get update && \
+    apt-get install -y libncurses5-dev libncursesw5-dev openssl ca-certificates && \
     tar -xzf *.tar.gz && \
     rm *.tar.gz && \
-    adduser -h /app -D app && \
+    adduser --home /app --disabled-password --gecos "" app && \
     chown -R app: /app
 
 USER app

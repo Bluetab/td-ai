@@ -32,4 +32,4 @@ config :logger, level: :warning
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
-config :td_ai, :python_module, TdAi.PythonMock
+config :td_ai, :gen_ai_module, TdAi.GenAiMock

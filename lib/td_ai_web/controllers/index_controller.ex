@@ -12,10 +12,13 @@ defmodule TdAiWeb.IndexController do
   end
 
   def create(conn, %{"index" => index_params}) do
-    python = Application.get_env(:td_ai, :python_module)
+    gen_ai = Application.get_env(:td_ai, :gen_ai_module)
 
-    with ~c"ok" <- python.load_collection(index_params),
-         {:ok, %Index{} = index} <- Indices.create_index(index_params) do
+    index_params = Map.put(index_params, "status", "Created")
+
+    with {:ok, %Index{} = index} <- Indices.create_index(index_params) do
+      gen_ai.load_collection(index)
+
       conn
       |> put_status(:created)
       |> put_resp_header("location", ~p"/api/indices/#{index}")
