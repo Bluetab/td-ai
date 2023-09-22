@@ -10,8 +10,13 @@ import Config
 config :td_ai,
   ecto_repos: [TdAi.Repo]
 
+config :td_ai, :env, Mix.env()
+config :td_cluster, :env, Mix.env()
+config :td_cluster, groups: [:ai]
+
 # Configures the endpoint
 config :td_ai, TdAiWeb.Endpoint,
+  http: [port: 4015],
   url: [host: "localhost"],
   render_errors: [
     formats: [html: TdAiWeb.ErrorHTML, json: TdAiWeb.ErrorJSON],
@@ -59,7 +64,7 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :td_ai, :python_module, TdAi.Python
+config :td_ai, :gen_ai_module, TdAi.GenAi
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

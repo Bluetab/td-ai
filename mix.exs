@@ -9,7 +9,14 @@ defmodule TdAi.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      releases: [
+        td_ai: [
+          include_executables_for: [:unix],
+          applications: [runtime_tools: :permanent],
+          steps: [:assemble, &copy_bin_files/1, :tar]
+        ]
+      ]
     ]
   end
 
@@ -26,6 +33,11 @@ defmodule TdAi.MixProject do
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  defp copy_bin_files(release) do
+    File.cp_r("rel/bin", Path.join(release.path, "bin"))
+    release
+  end
 
   # Specifies your project dependencies.
   #
@@ -50,8 +62,12 @@ defmodule TdAi.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:erlport, "~> 0.11.0"},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false}
+      {:scholar, "~> 0.2.1"},
+      {:exla, "~> 0.6.1"},
+      {:bumblebee, "~> 0.4.0"},
+      {:req, "~> 0.4.0"},
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:td_cluster, git: "https://github.com/Bluetab/td-cluster.git", tag: "5.15.1"},
     ]
   end
 

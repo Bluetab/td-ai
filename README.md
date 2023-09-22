@@ -16,3 +16,8 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
   * Docs: https://hexdocs.pm/phoenix
   * Forum: https://elixirforum.com/c/phoenix-forum
   * Source: https://github.com/phoenixframework/phoenix
+
+
+docker build --build-arg APP_NAME=td_ai --build-arg APP_VERSION=0.0.1 --volume /home/bluetab/Escritorio/Truedat/td-ai:/app .
+
+docker build --build-arg APP_VERSION=0.1.0 .

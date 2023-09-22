@@ -1,10 +1,10 @@
-defmodule TdAi.PythonMock do
+defmodule TdAi.GenAiMock do
   @moduledoc """
-  Mock for TdAi.Python Module
+  Mock for TdAi.GenAi Module
   """
 
   def load_collection(_params) do
-    ~c"ok"
+    :ok
   end
 
   def predict(_params) do

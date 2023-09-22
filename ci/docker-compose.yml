@@ -15,7 +15,7 @@ services:
       start_period: 10s
 
   build:
-    image: bluetab/elixir:1.14.5-alpine-20230524124559
+    image: bluetab/elixir:1.15.4-slim-20230921183126
     command: ci/build.sh
     environment:
       APP_VERSION: "${APP_VERSION}"
@@ -28,7 +28,7 @@ services:
       - "${CI_PROJECT_DIR}:/code"
 
   test:
-    image: bluetab/elixir:1.14.5-alpine-20230524124559
+    image: bluetab/elixir:1.15.4-slim-20230921183126
     command: ci/test.sh
     environment:
       HOME: /tmp # CURRENT_UID doesn't have a home
@@ -49,11 +49,13 @@ services:
       DB_PASSWORD: postgres
       DB_USER: postgres
       GUARDIAN_SECRET_KEY: topsecret
+      MILVUS_HOST: milvus
+      MILVUS_PORT: 9091
     depends_on:
       - postgres
 
   acceptance:
     image: bluetab/wait-for:20190507133127
-    command: service:4010 -t 30 -- curl --silent service:4010/api/ping
+    command: service:4015 -t 30 -- curl --silent service:4015/api/ping
     depends_on:
       - service

@@ -12,9 +12,9 @@ defmodule TdAiWeb.PredictionController do
   end
 
   def create(conn, %{"prediction" => prediction_params}) do
-    python = Application.get_env(:td_ai, :python_module)
+    gen_ai = Application.get_env(:td_ai, :gen_ai_module)
 
-    with [_ | _] = result <- python.predict(prediction_params),
+    with result <- gen_ai.predict(prediction_params),
          prediction_params <- Map.put(prediction_params, "result", result),
          {:ok, %Prediction{} = prediction} <-
            Predictions.create_prediction(prediction_params) do
