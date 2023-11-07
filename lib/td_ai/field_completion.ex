@@ -26,14 +26,14 @@ defmodule TdAi.FieldCompletion do
   """
 
   def start_link(_) do
-    case Application.get_env(:td_core, :env) do
+    case Application.get_env(:td_cluster, :env) do
       :test -> :ok
       _ -> GenServer.start_link(__MODULE__, nil, name: __MODULE__)
     end
   end
 
   def resource_field_completion(resource_type, resource_id, fields) do
-    case Application.get_env(:td_core, :env) do
+    case Application.get_env(:td_cluster, :env) do
       :test -> %{}
       _ -> GenServer.call(__MODULE__, {resource_type, resource_id, fields}, 30000)
     end
@@ -67,11 +67,13 @@ defmodule TdAi.FieldCompletion do
       |> Map.take([:name, :group, :classes, :type, :mutable_metadata, :description])
       |> Jason.encode!()
 
-    content =
-      """
-      Data Structure: #{structure}
-      Fill the following fields: #{Jason.encode!(fields)}
-      """
+    content = """
+    Data Structure: #{structure}
+    Fill the following fields: #{Jason.encode!(fields)}
+    """
+
+    IO.inspect(system_prompt, label: "SYSTEM PROMPT:")
+    IO.inspect(content, label: "REQUESTING:")
 
     {:ok,
      %{
