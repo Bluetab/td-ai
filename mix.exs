@@ -66,8 +66,10 @@ defmodule TdAi.MixProject do
       {:exla, "~> 0.6.1"},
       {:bumblebee, "~> 0.4.0"},
       {:req, "~> 0.4.0"},
+      {:openai, "~> 0.5.4"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:td_cluster, git: "https://github.com/Bluetab/td-cluster.git", tag: "5.15.1"},
+      # {:td_cluster, git: "https://github.com/Bluetab/td-cluster.git", tag: "5.15.1"},
+      {:td_cluster, path: "../libs/td-cluster"}
     ]
   end
 
