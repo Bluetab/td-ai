@@ -5,102 +5,86 @@ defmodule TdAi.FieldCompletion do
 
   use GenServer
 
-  alias TdCluster.Cluster
-
-  @test """
-
-  fields = [
-    %{description: "a short name for the concept", field: "alias"},
-    %{
-      description: "a boolean weather the concept contains sensitive information",
-      field: "gdpr"
-    },
-    %{
-      description: "a boolean weather the concept refers to a critical business term",
-      field: "Critical Business Term"
-    }
-  ]
-  TdAi.FieldCompletion.resource_field_completion("data_structure", 12335456, fields)
-
-
-  """
+  alias TdAi.Completion
+  alias TdAi.PromptParser
+  alias TdAi.Provider
+  alias TdCore.Utils.Timer
 
   def start_link(_) do
-    case Application.get_env(:td_cluster, :env) do
+    case Application.get_env(:td_ai, :env) do
       :test -> :ok
       _ -> GenServer.start_link(__MODULE__, nil, name: __MODULE__)
     end
   end
 
-  def resource_field_completion(resource_type, resource_id, fields) do
-    case Application.get_env(:td_cluster, :env) do
+  def resource_field_completion(resource_type, resource_id, fields, opts \\ []) do
+    case Application.get_env(:td_ai, :env) do
       :test -> %{}
-      _ -> GenServer.call(__MODULE__, {resource_type, resource_id, fields}, 30000)
+      _ -> GenServer.call(__MODULE__, {resource_type, resource_id, fields, opts}, 30_000)
     end
   end
 
   @impl GenServer
   def init(_) do
-    system_prompt = Application.fetch_env!(:td_ai, TdAi.FieldCompletion)[:system_prompt]
-    model = Application.fetch_env!(:td_ai, TdAi.FieldCompletion)[:model]
+    {:ok, nil}
+  end
 
-    {:ok,
-     %{
-       system_prompt: system_prompt,
-       model: model
-     }}
+  def run_completion(resource_type, resource_id, fields, opts) do
+    language = Keyword.get(opts, :language, "en")
+    requested_by = Keyword.get(opts, :requested_by)
+
+    with {:prompt,
+          %{
+            resource_mapping: resource_mapping,
+            system_prompt: system_prompt,
+            model: model,
+            provider: provider
+          } =
+            prompt} <-
+           {:prompt, Completion.get_prompt_by_resource_and_language(resource_type, language)},
+         {:resource, resource} when is_map(resource) <-
+           {:resource, PromptParser.parse(resource_mapping, resource_type, resource_id)},
+         {:user_prompt, user_prompt} when is_binary(user_prompt) <-
+           {:user_prompt, PromptParser.generate_user_prompt(prompt, fields, resource)} do
+      Timer.time(
+        fn ->
+          provider
+          |> Provider.chat_completion(model, system_prompt, user_prompt)
+          |> case do
+            {:ok, response} -> {:ok, Jason.decode!(response)}
+            error -> error
+          end
+        end,
+        fn
+          ms, {:ok, response} ->
+            Completion.create_suggestion(%{
+              response: response,
+              resource_id: resource_id,
+              generated_prompt: user_prompt,
+              request_time: ms,
+              requested_by: requested_by,
+              prompt_id: prompt.id
+            })
+
+          _, _ ->
+            nil
+        end
+      )
+    else
+      {:prompt, _} -> {:error, :invalid_prompt}
+      {:resource, _} -> {:error, :unable_to_parse_resource}
+      {:user_prompt, _} -> {:error, :unable_to_generate_user_prompt}
+    end
   end
 
   @impl GenServer
   def handle_call(
-        {"data_structure", resource_id, fields},
+        {resource_type, resource_id, fields, opts},
         _from,
-        %{
-          system_prompt: system_prompt,
-          model: model
-        } = state
+        state
       ) do
-    {:ok, structure} = Cluster.TdDd.get_latest_structure_version(resource_id)
+    result = run_completion(resource_type, resource_id, fields, opts)
 
-    structure =
-      structure
-      |> Map.take([:name, :group, :classes, :type, :mutable_metadata, :description])
-      |> Jason.encode!()
-
-    content = """
-    Data Structure: #{structure}
-    Fill the following fields: #{Jason.encode!(fields)}
-    """
-
-    IO.inspect(system_prompt, label: "SYSTEM PROMPT:")
-    IO.inspect(content, label: "REQUESTING:")
-
-    {:ok,
-     %{
-       choices: [
-         %{
-           "message" => %{
-             "content" => response
-           }
-         }
-       ]
-     }} =
-      OpenAI.chat_completion(
-        model: model,
-        messages: [
-          %{
-            role: "system",
-            content: system_prompt
-          },
-          %{
-            role: "user",
-            content: content
-          }
-        ]
-      )
-
-    result = Jason.decode!(response)
-    # result = nil
     {:reply, result, state}
   end
 

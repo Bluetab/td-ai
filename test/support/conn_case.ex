@@ -28,6 +28,9 @@ defmodule TdAiWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import TdAiWeb.ConnCase
+
+      import TdAi.Factory
+      import TdAi.TestOperators
     end
   end
 

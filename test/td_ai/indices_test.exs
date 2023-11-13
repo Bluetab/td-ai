@@ -6,8 +6,6 @@ defmodule TdAi.IndicesTest do
   describe "indices" do
     alias TdAi.Indices.Index
 
-    import TdAi.IndicesFixtures
-
     @invalid_attrs %{
       collection_name: nil,
       embedding: nil,
@@ -17,12 +15,12 @@ defmodule TdAi.IndicesTest do
     }
 
     test "list_indices/0 returns all indices" do
-      index = index_fixture()
+      index = insert(:index)
       assert Indices.list_indices() == [index]
     end
 
     test "get_index!/1 returns the index with given id" do
-      index = index_fixture()
+      index = insert(:index)
       assert Indices.get_index!(index.id) == index
     end
 
@@ -48,7 +46,7 @@ defmodule TdAi.IndicesTest do
     end
 
     test "update_index/2 with valid data updates the index" do
-      index = index_fixture()
+      index = insert(:index)
 
       update_attrs = %{
         collection_name: "some updated collection_name",
@@ -67,19 +65,19 @@ defmodule TdAi.IndicesTest do
     end
 
     test "update_index/2 with invalid data returns error changeset" do
-      index = index_fixture()
+      index = insert(:index)
       assert {:error, %Ecto.Changeset{}} = Indices.update_index(index, @invalid_attrs)
       assert index == Indices.get_index!(index.id)
     end
 
     test "delete_index/1 deletes the index" do
-      index = index_fixture()
+      index = insert(:index)
       assert {:ok, %Index{}} = Indices.delete_index(index)
       assert_raise Ecto.NoResultsError, fn -> Indices.get_index!(index.id) end
     end
 
     test "change_index/1 returns a index changeset" do
-      index = index_fixture()
+      index = insert(:index)
       assert %Ecto.Changeset{} = Indices.change_index(index)
     end
   end

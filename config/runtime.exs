@@ -21,16 +21,16 @@ if System.get_env("PHX_SERVER") do
 end
 
 config :openai,
-  api_key: System.fetch_env!("TD_OPENAI_API_KEY"),
+  api_key: System.get_env("TD_OPENAI_API_KEY"),
   http_options: [recv_timeout: 30_000]
 
-config :td_ai, TdAi.FieldCompletion,
-  system_prompt:
-    System.get_env(
-      "TD_AI_COMP_SYSTEM_PROMPT",
-      "You are a system that completes the value for various fields. You will receive some information about a Data Structure and the list of fields with their name and description. You need to return a JSON object with the values for each field and only the fields. Be very aware of each field description."
-    ),
-  model: System.get_env("TD_AI_COMP_MODEL", "gpt-3.5-turbo")
+# config :td_ai, TdAi.FieldCompletion,
+#   system_prompt:
+#     System.get_env(
+#       "TD_AI_COMP_SYSTEM_PROMPT",
+#       "You are a system that completes the value for various fields. You will receive some information about a Data Structure and the list of fields with their name and description. You need to return a JSON object with the values for each field and only the fields. Be very aware of each field description."
+#     ),
+#   model: System.get_env("TD_AI_COMP_MODEL", "gpt-3.5-turbo")
 
 if config_env() == :prod do
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
