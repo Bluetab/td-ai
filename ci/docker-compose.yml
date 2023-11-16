@@ -14,6 +14,16 @@ services:
       retries: 3
       start_period: 10s
 
+  redis:
+    image: library/redis:6.2-alpine
+    command: redis-server --port 6380 --appendonly yes
+    healthcheck:
+      test: redis-cli -h localhost -p 6380 ping | grep -q PONG || exit 1
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
   build:
     image: bluetab/elixir:1.15.4-slim-20230921183126
     command: ci/build.sh
@@ -51,8 +61,11 @@ services:
       GUARDIAN_SECRET_KEY: topsecret
       MILVUS_HOST: milvus
       MILVUS_PORT: 9091
+      REDIS_HOST: redis
+      REDIS_PORT: "6380"
     depends_on:
       - postgres
+      - redis
 
   acceptance:
     image: bluetab/wait-for:20190507133127
