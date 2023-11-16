@@ -72,3 +72,4 @@ services:
     command: service:4015 -t 30 -- curl --silent service:4015/api/ping
     depends_on:
       - service
+      - redis
