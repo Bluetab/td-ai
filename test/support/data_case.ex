@@ -26,6 +26,9 @@ defmodule TdAi.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import TdAi.DataCase
+
+      import TdAi.Factory
+      import TdAi.TestOperators
     end
   end
 

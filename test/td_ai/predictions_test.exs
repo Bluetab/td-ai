@@ -6,17 +6,15 @@ defmodule TdAi.PredictionsTest do
   describe "predictions" do
     alias TdAi.Predictions.Prediction
 
-    import TdAi.PredictionsFixtures
-
     @invalid_attrs %{result: nil, mapping: nil, data_structure_id: nil}
 
     test "list_predictions/0 returns all predictions" do
-      prediction = prediction_fixture()
+      prediction = insert(:prediction)
       assert Predictions.list_predictions() == [prediction]
     end
 
     test "get_prediction!/1 returns the prediction with given id" do
-      prediction = prediction_fixture()
+      prediction = insert(:prediction)
       assert Predictions.get_prediction!(prediction.id) == prediction
     end
 
@@ -34,7 +32,7 @@ defmodule TdAi.PredictionsTest do
     end
 
     test "update_prediction/2 with valid data updates the prediction" do
-      prediction = prediction_fixture()
+      prediction = insert(:prediction)
       update_attrs = %{result: [], mapping: ["option1"], data_structure_id: 43}
 
       assert {:ok, %Prediction{} = prediction} =
@@ -46,7 +44,7 @@ defmodule TdAi.PredictionsTest do
     end
 
     test "update_prediction/2 with invalid data returns error changeset" do
-      prediction = prediction_fixture()
+      prediction = insert(:prediction)
 
       assert {:error, %Ecto.Changeset{}} =
                Predictions.update_prediction(prediction, @invalid_attrs)
@@ -55,13 +53,13 @@ defmodule TdAi.PredictionsTest do
     end
 
     test "delete_prediction/1 deletes the prediction" do
-      prediction = prediction_fixture()
+      prediction = insert(:prediction)
       assert {:ok, %Prediction{}} = Predictions.delete_prediction(prediction)
       assert_raise Ecto.NoResultsError, fn -> Predictions.get_prediction!(prediction.id) end
     end
 
     test "change_prediction/1 returns a prediction changeset" do
-      prediction = prediction_fixture()
+      prediction = insert(:prediction)
       assert %Ecto.Changeset{} = Predictions.change_prediction(prediction)
     end
   end

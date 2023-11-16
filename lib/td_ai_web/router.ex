@@ -28,6 +28,14 @@ defmodule TdAiWeb.Router do
 
     resources("/indices", IndexController, except: [:new, :edit])
     resources("/predictions", PredictionController, except: [:new, :edit])
+
+    resources "/resource_mappings", ResourceMappingController, except: [:new, :edit]
+
+    resources "/prompts", PromptController, except: [:new, :edit] do
+      patch "/set_active", PromptController, :set_active
+    end
+
+    resources "/suggestions", SuggestionController, except: [:new, :edit]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
