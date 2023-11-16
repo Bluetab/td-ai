@@ -5,8 +5,6 @@ defmodule TdAi.Completion.Prompt do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias TdAi.Completion.ResourceMapping
-
   schema "prompts" do
     field :active, :boolean, default: false
     field :name, :string
@@ -14,7 +12,6 @@ defmodule TdAi.Completion.Prompt do
     field :resource_type, :string
     field :system_prompt, :string
     field :user_prompt_template, :string
-    belongs_to :resource_mapping, ResourceMapping
 
     field :model, :string
     field :provider, :string
@@ -31,8 +28,7 @@ defmodule TdAi.Completion.Prompt do
       :system_prompt,
       :user_prompt_template,
       :model,
-      :provider,
-      :resource_mapping_id
+      :provider
     ])
     |> validate_required([
       :name,
@@ -41,8 +37,7 @@ defmodule TdAi.Completion.Prompt do
       :system_prompt,
       :user_prompt_template,
       :model,
-      :provider,
-      :resource_mapping_id
+      :provider
     ])
   end
 

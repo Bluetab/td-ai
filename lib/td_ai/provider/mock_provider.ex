@@ -1,6 +1,6 @@
-defmodule TdAi.Provider do
+defmodule TdAi.Nada do
   @moduledoc """
-  Module for handling Provider calls
+  Provider calls
   """
 
   def chat_completion(provider, model, system_prompt, user_prompt) do
@@ -11,16 +11,17 @@ defmodule TdAi.Provider do
   end
 
   def do_chat_completion("openai", model, system_prompt, user_prompt) do
-    {:ok, %{choices: [%{"message" => %{"content" => response}}]}} =
-      OpenAI.chat_completion(
-        model: model,
-        messages: [
-          %{role: "system", content: system_prompt},
-          %{role: "user", content: user_prompt}
-        ]
-      )
-
-    {:ok, response}
+    OpenAI.chat_completion(
+      model: model,
+      messages: [
+        %{role: "system", content: system_prompt},
+        %{role: "user", content: user_prompt}
+      ]
+    )
+    |> case do
+      {:ok, %{choices: [%{"message" => %{"content" => response}}]}} -> {:ok, response}
+      error -> error
+    end
   end
 
   def do_chat_completion(_, _, _, _), do: {:error, :invalid_provider}

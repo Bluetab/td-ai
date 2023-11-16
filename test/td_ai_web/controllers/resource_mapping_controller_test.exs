@@ -5,11 +5,14 @@ defmodule TdAiWeb.ResourceMappingControllerTest do
 
   @create_attrs %{
     name: "some name",
-    fields: [%{source: "source_field"}]
+    fields: [%{source: "source_field"}],
+    resource_type: "some resource"
   }
   @update_attrs %{
     name: "some updated name",
-    fields: [%{source: "updated_source_field"}]
+    fields: [%{source: "updated_source_field"}],
+    resource_type: "other resorce",
+    selector: %{"foo" => "bar"}
   }
   @invalid_attrs %{name: nil, fields: nil}
 

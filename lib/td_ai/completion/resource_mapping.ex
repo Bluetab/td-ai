@@ -12,14 +12,17 @@ defmodule TdAi.Completion.ResourceMapping do
 
     embeds_many(:fields, Field, on_replace: :delete)
 
+    field :resource_type, :string
+    field :selector, :map
+
     timestamps()
   end
 
   @doc false
   def changeset(resource_mapping, attrs) do
     resource_mapping
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
+    |> cast(attrs, [:name, :resource_type, :selector])
+    |> validate_required([:name, :resource_type])
     |> cast_embed(:fields, with: &Field.changeset/2, required: true)
   end
 end

@@ -38,6 +38,14 @@ defmodule TdAi.Completion do
   """
   def get_resource_mapping!(id), do: Repo.get!(ResourceMapping, id)
 
+  def get_resource_mapping_by_selector(resource_type, selector \\ %{}) do
+    ResourceMapping
+    |> where([rm], rm.resource_type == ^resource_type and rm.selector == ^selector)
+    |> limit(1)
+    |> Repo.all()
+    |> Enum.at(0)
+  end
+
   @doc """
   Creates a resource_mapping.
 
@@ -224,7 +232,8 @@ defmodule TdAi.Completion do
   def get_prompt_by_resource_and_language(resource_type, language) do
     Prompt
     |> Repo.get_by(resource_type: resource_type, language: language, active: true)
-    |> Repo.preload(:resource_mapping)
+
+    # |> Repo.preload(:resource_mapping)
   end
 
   alias TdAi.Completion.Suggestion

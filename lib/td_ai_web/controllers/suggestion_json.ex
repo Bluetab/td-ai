@@ -23,7 +23,9 @@ defmodule TdAiWeb.SuggestionJSON do
       response: suggestion.response,
       request_time: suggestion.request_time,
       requested_by: suggestion.requested_by,
-      prompt_id: suggestion.prompt_id
+      status: suggestion.status,
+      prompt_id: suggestion.prompt_id,
+      resource_mapping_id: suggestion.resource_mapping_id
     }
   end
 end

@@ -2,7 +2,7 @@ defmodule TdAi.PromptParser do
   @moduledoc """
   Module for parsing Prompts
   """
-  import TdCore.Utils.CollectionUtils, only: [stringify_keys: 1]
+  import TdCore.Utils.CollectionUtils, only: [stringify_keys: 2]
 
   alias TdAi.Completion.Prompt
   alias TdAi.Completion.ResourceMapping
@@ -10,8 +10,10 @@ defmodule TdAi.PromptParser do
   alias TdCluster.Cluster
 
   def parse(%ResourceMapping{fields: fields}, "data_structure", resource_id) do
-    {:ok, structure} = Cluster.TdDd.get_latest_structure_version(resource_id)
-    structure = stringify_keys(structure)
+    {:ok, structure} =
+      Cluster.TdDd.get_latest_structure_version(resource_id, [:profile])
+
+    structure = stringify_keys(structure, true)
 
     Enum.reduce_while(fields, %{}, fn %{source: source, target: target}, acc ->
       value =

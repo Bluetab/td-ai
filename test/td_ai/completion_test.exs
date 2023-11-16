@@ -18,8 +18,45 @@ defmodule TdAi.CompletionTest do
       assert Completion.get_resource_mapping!(resource_mapping.id) == resource_mapping
     end
 
+    test "get_resource_mapping_by_selector/2 returns a resource_mapping for resource_type" do
+      resource_type = "some_type"
+
+      resource_mapping =
+        insert(:resource_mapping, resource_type: resource_type)
+
+      assert Completion.get_resource_mapping_by_selector(resource_type) ==
+               resource_mapping
+    end
+
+    test "get_resource_mapping_by_selector/2 exactly matches the selector" do
+      resource_type = "some_type"
+
+      insert(:resource_mapping, resource_type: resource_type)
+      insert(:resource_mapping, resource_type: resource_type, selector: %{"a" => 1})
+
+      resource_mapping =
+        insert(:resource_mapping, resource_type: resource_type, selector: %{"a" => 1, "b" => 2})
+
+      assert Completion.get_resource_mapping_by_selector(resource_type, %{b: 2, a: 1}) ==
+               resource_mapping
+    end
+
+    test "get_resource_mapping_by_selector!/2 does not matches any selector" do
+      resource_type = "some_type"
+
+      insert(:resource_mapping, resource_type: resource_type, selector: %{"a" => 1})
+
+      assert is_nil(Completion.get_resource_mapping_by_selector(resource_type))
+    end
+
     test "create_resource_mapping/1 with valid data creates a resource_mapping" do
-      valid_attrs = %{name: "some name", fields: [%{source: "some source"}]}
+      resource_type = "some_type"
+
+      valid_attrs = %{
+        name: "some name",
+        fields: [%{source: "some source"}],
+        resource_type: resource_type
+      }
 
       assert {:ok, %ResourceMapping{} = resource_mapping} =
                Completion.create_resource_mapping(valid_attrs)
@@ -94,8 +131,6 @@ defmodule TdAi.CompletionTest do
     end
 
     test "create_prompt/1 with valid data creates a prompt" do
-      %{id: resource_mapping_id} = insert(:resource_mapping)
-
       valid_attrs = %{
         name: "some name",
         language: "some language",
@@ -103,8 +138,7 @@ defmodule TdAi.CompletionTest do
         system_prompt: "some system_prompt",
         user_prompt_template: "some user_prompt_template",
         model: "some model",
-        provider: "some provider",
-        resource_mapping_id: resource_mapping_id
+        provider: "some provider"
       }
 
       assert {:ok, %Prompt{} = prompt} = Completion.create_prompt(valid_attrs)
@@ -115,7 +149,6 @@ defmodule TdAi.CompletionTest do
       assert prompt.user_prompt_template == "some user_prompt_template"
       assert prompt.model == "some model"
       assert prompt.provider == "some provider"
-      assert prompt.resource_mapping_id == resource_mapping_id
     end
 
     test "create_prompt/1 with invalid data returns error changeset" do
@@ -173,19 +206,6 @@ defmodule TdAi.CompletionTest do
     test "get_prompt_by_resource_and_language/1 returns nil if does not exist" do
       assert is_nil(Completion.get_prompt_by_resource_and_language("foo", "bar"))
     end
-
-    test "get_prompt_by_resource_and_language/1 preloads resource_mapping" do
-      insert(:prompt,
-        name: "resource1",
-        resource_type: "foo",
-        language: "bar",
-        active: true,
-        resource_mapping: build(:resource_mapping, name: "rm1")
-      )
-
-      assert %Prompt{name: "resource1", resource_mapping: %{name: "rm1"}} =
-               Completion.get_prompt_by_resource_and_language("foo", "bar")
-    end
   end
 
   describe "suggestions" do
@@ -211,23 +231,28 @@ defmodule TdAi.CompletionTest do
 
     test "create_suggestion/1 with valid data creates a suggestion" do
       %{id: prompt_id} = insert(:prompt)
+      %{id: resource_mapping_id} = insert(:resource_mapping)
 
       valid_attrs = %{
         response: %{},
         resource_id: 42,
         generated_prompt: "some generated_prompt",
+        status: "ok",
         request_time: 42,
         requested_by: 42,
-        prompt_id: prompt_id
+        prompt_id: prompt_id,
+        resource_mapping_id: resource_mapping_id
       }
 
       assert {:ok, %Suggestion{} = suggestion} = Completion.create_suggestion(valid_attrs)
       assert suggestion.response == %{}
       assert suggestion.resource_id == 42
       assert suggestion.generated_prompt == "some generated_prompt"
+      assert suggestion.status == "ok"
       assert suggestion.request_time == 42
       assert suggestion.requested_by == 42
       assert suggestion.prompt_id == prompt_id
+      assert suggestion.resource_mapping_id == resource_mapping_id
     end
 
     test "create_suggestion/1 with invalid data returns error changeset" do
@@ -241,6 +266,7 @@ defmodule TdAi.CompletionTest do
         response: %{},
         resource_id: 43,
         generated_prompt: "some updated generated_prompt",
+        status: "error",
         request_time: 43,
         requested_by: 43
       }
@@ -251,6 +277,7 @@ defmodule TdAi.CompletionTest do
       assert suggestion.response == %{}
       assert suggestion.resource_id == 43
       assert suggestion.generated_prompt == "some updated generated_prompt"
+      assert suggestion.status == "error"
       assert suggestion.request_time == 43
       assert suggestion.requested_by == 43
     end

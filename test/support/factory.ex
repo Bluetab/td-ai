@@ -34,7 +34,9 @@ defmodule TdAi.Factory do
   def resource_mapping_factory(attrs \\ %{}) do
     %ResourceMapping{
       name: sequence(:resource_mapping_name, &"Name#{&1}"),
-      fields: [%{source: "source.field"}]
+      fields: [%{source: "source.field"}],
+      resource_type: "resource_type",
+      selector: %{}
     }
     |> merge_attributes(attrs)
   end
@@ -48,8 +50,7 @@ defmodule TdAi.Factory do
       system_prompt: "some system_prompt",
       user_prompt_template: "some user_prompt_template",
       model: "some model",
-      provider: "some provider",
-      resource_mapping: build(:resource_mapping)
+      provider: "some provider"
     }
     |> merge_attributes(attrs)
   end
@@ -61,7 +62,9 @@ defmodule TdAi.Factory do
       generated_prompt: sequence(:generated_prompt, &"Prompt#{&1}"),
       request_time: 42,
       requested_by: 42,
-      prompt: build(:prompt)
+      prompt: build(:prompt),
+      resource_mapping: build(:resource_mapping),
+      status: "ok"
     }
     |> merge_attributes(attrs)
   end

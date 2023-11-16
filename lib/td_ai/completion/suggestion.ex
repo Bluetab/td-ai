@@ -6,6 +6,7 @@ defmodule TdAi.Completion.Suggestion do
   import Ecto.Changeset
 
   alias TdAi.Completion.Prompt
+  alias TdAi.Completion.ResourceMapping
 
   schema "suggestions" do
     field :response, :map
@@ -13,7 +14,9 @@ defmodule TdAi.Completion.Suggestion do
     field :generated_prompt, :string
     field :request_time, :integer
     field :requested_by, :integer
+    field :status, :string
     belongs_to :prompt, Prompt
+    belongs_to :resource_mapping, ResourceMapping
 
     timestamps()
   end
@@ -27,14 +30,18 @@ defmodule TdAi.Completion.Suggestion do
       :response,
       :request_time,
       :requested_by,
-      :prompt_id
+      :prompt_id,
+      :resource_mapping_id,
+      :status
     ])
     |> validate_required([
       :resource_id,
       :generated_prompt,
       :response,
       :request_time,
-      :prompt_id
+      :prompt_id,
+      :resource_mapping_id,
+      :status
     ])
   end
 end

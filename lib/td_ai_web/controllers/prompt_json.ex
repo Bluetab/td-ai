@@ -25,8 +25,7 @@ defmodule TdAiWeb.PromptJSON do
       user_prompt_template: prompt.user_prompt_template,
       active: prompt.active,
       model: prompt.model,
-      provider: prompt.provider,
-      resource_mapping_id: prompt.resource_mapping_id
+      provider: prompt.provider
     }
   end
 end

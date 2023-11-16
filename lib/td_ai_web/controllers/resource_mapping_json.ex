@@ -20,7 +20,9 @@ defmodule TdAiWeb.ResourceMappingJSON do
     %{
       id: resource_mapping.id,
       name: resource_mapping.name,
-      fields: ResourceMappingFieldJSON.embeds_many(resource_mapping)
+      fields: ResourceMappingFieldJSON.embeds_many(resource_mapping),
+      resource_type: resource_mapping.resource_type,
+      selector: resource_mapping.selector
     }
   end
 end

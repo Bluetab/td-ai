@@ -31,7 +31,7 @@ defmodule TdAi.MixProject do
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:test), do: ["test/support", "lib"]
   defp elixirc_paths(_), do: ["lib"]
 
   defp copy_bin_files(release) do
@@ -70,9 +70,9 @@ defmodule TdAi.MixProject do
       {:req, "~> 0.4.0"},
       {:openai, "~> 0.5.4"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      # {:td_cluster, git: "https://github.com/Bluetab/td-cluster.git", tag: "5.15.1"},
-      {:td_cluster, path: "../libs/td-cluster", override: true},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "5.17.0"}
+      {:td_cluster,
+       git: "https://github.com/Bluetab/td-cluster.git", branch: "feature/td-6140", override: true},
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", branch: "feature/td-6140"}
     ]
   end
 
