@@ -50,4 +50,9 @@ if config_env() == :prod do
     host: System.fetch_env!("MILVUS_HOST"),
     port: System.fetch_env!("MILVUS_PORT")
   }
+
+  config :td_cache,
+    redis_host: System.fetch_env!("REDIS_HOST"),
+    port: System.get_env("REDIS_PORT", "6379") |> String.to_integer(),
+    password: System.get_env("REDIS_PASSWORD")
 end

@@ -50,6 +50,7 @@ services:
       - "${CI_PROJECT_DIR}:/code"
     depends_on:
       - postgres
+      - redis
 
   service:
     image: ${ECR}/${ECR_NAMESPACE}/${CI_PROJECT_NAME}:${APP_VERSION}
@@ -72,4 +73,3 @@ services:
     command: service:4015 -t 30 -- curl --silent service:4015/api/ping
     depends_on:
       - service
-      - redis
