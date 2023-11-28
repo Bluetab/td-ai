@@ -1,8 +1,6 @@
 defmodule TdAiWeb.PredictionControllerTest do
   use TdAiWeb.ConnCase
 
-  import TdAi.PredictionsFixtures
-
   alias TdAi.Predictions.Prediction
 
   @create_attrs %{
@@ -89,7 +87,7 @@ defmodule TdAiWeb.PredictionControllerTest do
   end
 
   defp create_prediction(_) do
-    prediction = prediction_fixture()
+    prediction = insert(:prediction)
     %{prediction: prediction}
   end
 end

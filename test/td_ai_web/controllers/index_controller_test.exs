@@ -1,8 +1,6 @@
 defmodule TdAiWeb.IndexControllerTest do
   use TdAiWeb.ConnCase
 
-  import TdAi.IndicesFixtures
-
   alias TdAi.Indices.Index
 
   @create_attrs %{
@@ -90,7 +88,7 @@ defmodule TdAiWeb.IndexControllerTest do
   end
 
   defp create_index(_) do
-    index = index_fixture()
+    index = insert(:index)
     %{index: index}
   end
 end
