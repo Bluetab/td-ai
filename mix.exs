@@ -4,7 +4,11 @@ defmodule TdAi.MixProject do
   def project do
     [
       app: :td_ai,
-      version: "0.1.0",
+      version:
+        case System.get_env("APP_VERSION") do
+          nil -> "5.19.0-local"
+          v -> v
+        end,
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
