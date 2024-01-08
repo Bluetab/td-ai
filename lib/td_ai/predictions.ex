@@ -8,6 +8,8 @@ defmodule TdAi.Predictions do
 
   alias TdAi.Predictions.Prediction
 
+  defdelegate authorize(action, user, params), to: __MODULE__.Policy
+
   @doc """
   Returns the list of predictions.
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- [TD-6221] Secured endpoints. Only admins can access the resources.
+
 ## [5.19.0] 2023-11-28
 
 ### Added

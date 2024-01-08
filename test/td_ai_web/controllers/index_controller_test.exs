@@ -24,13 +24,21 @@ defmodule TdAiWeb.IndexControllerTest do
   end
 
   describe "index" do
+    @tag authentication: [role: "admin"]
     test "lists all indices", %{conn: conn} do
       conn = get(conn, ~p"/api/indices")
       assert json_response(conn, 200)["data"] == []
     end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot list indices", %{conn: conn} do
+      conn = get(conn, ~p"/api/indices")
+      assert json_response(conn, 403)
+    end
   end
 
   describe "create index" do
+    @tag authentication: [role: "admin"]
     test "renders index when data is valid", %{conn: conn} do
       conn = post(conn, ~p"/api/indices", index: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
@@ -45,15 +53,23 @@ defmodule TdAiWeb.IndexControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag authentication: [role: "admin"]
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, ~p"/api/indices", index: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot create indices", %{conn: conn} do
+      conn = post(conn, ~p"/api/indices", index: @create_attrs)
+      assert response(conn, 403)
     end
   end
 
   describe "update index" do
     setup [:create_index]
 
+    @tag authentication: [role: "admin"]
     test "renders index when data is valid", %{conn: conn, index: %Index{id: id} = index} do
       conn = put(conn, ~p"/api/indices/#{index}", index: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
@@ -68,15 +84,28 @@ defmodule TdAiWeb.IndexControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag authentication: [role: "admin"]
     test "renders errors when data is invalid", %{conn: conn, index: index} do
       conn = put(conn, ~p"/api/indices/#{index}", index: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot update indices", %{
+      conn: conn,
+      index: index
+    } do
+      conn =
+        put(conn, ~p"/api/indices/#{index}", index: @update_attrs)
+
+      assert response(conn, 403)
     end
   end
 
   describe "delete index" do
     setup [:create_index]
 
+    @tag authentication: [role: "admin"]
     test "deletes chosen index", %{conn: conn, index: index} do
       conn = delete(conn, ~p"/api/indices/#{index}")
       assert response(conn, 204)
@@ -84,6 +113,13 @@ defmodule TdAiWeb.IndexControllerTest do
       assert_error_sent 404, fn ->
         get(conn, ~p"/api/indices/#{index}")
       end
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot delete indices", %{conn: conn, index: index} do
+      conn = delete(conn, ~p"/api/indices/#{index}")
+
+      assert response(conn, 403)
     end
   end
 

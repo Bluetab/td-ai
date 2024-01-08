@@ -20,13 +20,21 @@ defmodule TdAiWeb.PredictionControllerTest do
   end
 
   describe "index" do
+    @tag authentication: [role: "admin"]
     test "lists all predictions", %{conn: conn} do
       conn = get(conn, ~p"/api/predictions")
       assert json_response(conn, 200)["data"] == []
     end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot list predictions", %{conn: conn} do
+      conn = get(conn, ~p"/api/predictions")
+      assert json_response(conn, 403)
+    end
   end
 
   describe "create prediction" do
+    @tag authentication: [role: "admin"]
     test "renders prediction when data is valid", %{conn: conn} do
       conn = post(conn, ~p"/api/predictions", prediction: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
@@ -41,15 +49,23 @@ defmodule TdAiWeb.PredictionControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag authentication: [role: "admin"]
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, ~p"/api/predictions", prediction: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot create predictions", %{conn: conn} do
+      conn = post(conn, ~p"/api/predictions", prediction: @create_attrs)
+      assert response(conn, 403)
     end
   end
 
   describe "update prediction" do
     setup [:create_prediction]
 
+    @tag authentication: [role: "admin"]
     test "renders prediction when data is valid", %{
       conn: conn,
       prediction: %Prediction{id: id} = prediction
@@ -67,15 +83,28 @@ defmodule TdAiWeb.PredictionControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag authentication: [role: "admin"]
     test "renders errors when data is invalid", %{conn: conn, prediction: prediction} do
       conn = put(conn, ~p"/api/predictions/#{prediction}", prediction: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot update predictions", %{
+      conn: conn,
+      prediction: prediction
+    } do
+      conn =
+        put(conn, ~p"/api/predictions/#{prediction}", prediction: @update_attrs)
+
+      assert response(conn, 403)
     end
   end
 
   describe "delete prediction" do
     setup [:create_prediction]
 
+    @tag authentication: [role: "admin"]
     test "deletes chosen prediction", %{conn: conn, prediction: prediction} do
       conn = delete(conn, ~p"/api/predictions/#{prediction}")
       assert response(conn, 204)
@@ -83,6 +112,16 @@ defmodule TdAiWeb.PredictionControllerTest do
       assert_error_sent 404, fn ->
         get(conn, ~p"/api/predictions/#{prediction}")
       end
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot delete predictions", %{
+      conn: conn,
+      prediction: prediction
+    } do
+      conn = delete(conn, ~p"/api/predictions/#{prediction}")
+
+      assert response(conn, 403)
     end
   end
 
