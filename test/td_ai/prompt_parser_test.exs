@@ -188,7 +188,7 @@ defmodule TdAi.PromptParserTest do
 
       assert """
                Data structure: {"metadata":{"database":"value"},"name":"ds_name"}
-               Fields to generate: [{"name":"field1","description":"Description"}]
+               Fields to generate: [{"description":"Description","name":"field1"}]
              """ =
                PromptParser.generate_user_prompt(prompt, fields, resource)
     end
