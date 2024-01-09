@@ -95,8 +95,7 @@ defmodule TdAiWeb.IndexControllerTest do
       conn: conn,
       index: index
     } do
-      conn =
-        put(conn, ~p"/api/indices/#{index}", index: @update_attrs)
+      conn = put(conn, ~p"/api/indices/#{index}", index: @update_attrs)
 
       assert response(conn, 403)
     end

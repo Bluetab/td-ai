@@ -124,8 +124,7 @@ defmodule TdAiWeb.SuggestionControllerTest do
       conn: conn,
       suggestion: suggestion
     } do
-      conn =
-        put(conn, ~p"/api/suggestions/#{suggestion}", suggestion: @update_attrs)
+      conn = put(conn, ~p"/api/suggestions/#{suggestion}", suggestion: @update_attrs)
 
       assert response(conn, 403)
     end

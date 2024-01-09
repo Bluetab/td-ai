@@ -115,8 +115,7 @@ defmodule TdAiWeb.PromptControllerTest do
       conn: conn,
       prompt: prompt
     } do
-      conn =
-        put(conn, ~p"/api/prompts/#{prompt}", prompt: @update_attrs)
+      conn = put(conn, ~p"/api/prompts/#{prompt}", prompt: @update_attrs)
 
       assert response(conn, 403)
     end

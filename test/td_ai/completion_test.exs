@@ -21,8 +21,7 @@ defmodule TdAi.CompletionTest do
     test "get_resource_mapping_by_selector/2 returns a resource_mapping for resource_type" do
       resource_type = "some_type"
 
-      resource_mapping =
-        insert(:resource_mapping, resource_type: resource_type)
+      resource_mapping = insert(:resource_mapping, resource_type: resource_type)
 
       assert Completion.get_resource_mapping_by_selector(resource_type) ==
                resource_mapping

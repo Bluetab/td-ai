@@ -66,8 +66,7 @@ defmodule TdAi.PromptParserTest do
                  "nested" => [1, 2, 3]
                },
                "value" => "value"
-             } =
-               PromptParser.parse(resource_mapping, "data_structure", data_structure_id)
+             } = PromptParser.parse(resource_mapping, "data_structure", data_structure_id)
     end
 
     test "uses source value if target is not provided" do
@@ -189,8 +188,7 @@ defmodule TdAi.PromptParserTest do
       assert """
                Data structure: {"metadata":{"database":"value"},"name":"ds_name"}
                Fields to generate: [{"description":"Description","name":"field1"}]
-             """ =
-               PromptParser.generate_user_prompt(prompt, fields, resource)
+             """ = PromptParser.generate_user_prompt(prompt, fields, resource)
     end
   end
 end

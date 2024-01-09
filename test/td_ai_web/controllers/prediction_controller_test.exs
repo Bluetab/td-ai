@@ -94,8 +94,7 @@ defmodule TdAiWeb.PredictionControllerTest do
       conn: conn,
       prediction: prediction
     } do
-      conn =
-        put(conn, ~p"/api/predictions/#{prediction}", prediction: @update_attrs)
+      conn = put(conn, ~p"/api/predictions/#{prediction}", prediction: @update_attrs)
 
       assert response(conn, 403)
     end
