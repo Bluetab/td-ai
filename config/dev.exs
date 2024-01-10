@@ -29,6 +29,8 @@ config :td_ai, TdAiWeb.Endpoint,
     tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
+config :td_cache, redis_host: "redis"
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signedc

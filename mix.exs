@@ -9,7 +9,7 @@ defmodule TdAi.MixProject do
           nil -> "5.19.0-local"
           v -> v
         end,
-      elixir: "~> 1.14",
+      elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),

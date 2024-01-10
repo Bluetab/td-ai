@@ -34,4 +34,6 @@ config :logger, level: :warning
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
+config :td_cache, redis_host: "redis", port: 6380
+
 config :td_ai, :gen_ai_module, TdAi.GenAiMock
