@@ -62,9 +62,7 @@ defmodule TdAi.FieldCompletion do
     with {:resource_mapping, %{} = resource_mapping} <-
            {:resource_mapping,
             Completion.get_resource_mapping_by_selector(resource_type, selector)},
-         {:prompt,
-          %{system_prompt: system_prompt, model: model, provider: provider} =
-            prompt} <-
+         {:prompt, %{system_prompt: system_prompt, model: model, provider: provider} = prompt} <-
            {:prompt, Completion.get_prompt_by_resource_and_language(resource_type, language)},
          {:resource, %{} = resource} <-
            {:resource, PromptParser.parse(resource_mapping, resource_type, resource_id)},

@@ -9,7 +9,7 @@ defmodule TdAi.MixProject do
           nil -> "5.19.0-local"
           v -> v
         end,
-      elixir: "~> 1.14",
+      elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -52,6 +52,8 @@ defmodule TdAi.MixProject do
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
+      {:bodyguard, "~> 2.4"},
+      {:guardian, "~> 2.0"},
       {:phoenix_html, "~> 3.3"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.19.0"},
@@ -68,7 +70,6 @@ defmodule TdAi.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:scholar, "~> 0.2.1"},
       {:exla, "~> 0.6.1"},
-      {:ex_machina, "~> 2.7", only: :test},
       {:mox, "~> 1.0", only: :test},
       {:bumblebee, "~> 0.4.0"},
       {:req, "~> 0.4.0"},
@@ -76,7 +77,7 @@ defmodule TdAi.MixProject do
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:td_cluster,
        git: "https://github.com/Bluetab/td-cluster.git", tag: "5.19.0", override: true},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "5.19.0"}
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.0.2"}
     ]
   end
 
