@@ -6,6 +6,7 @@
 
 - [TD-6221] Secured endpoints. Only admins can access the resources.
 - [TD-6195] Created generic suggestion request and availability endpoint
+- [TD-6336] Get test-truedat-eks config on deploy stage
 
 ## [5.19.0] 2023-11-28
 
