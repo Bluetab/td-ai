@@ -25,6 +25,17 @@ config :td_ai, TdAiWeb.Endpoint,
   pubsub_server: TdAi.PubSub,
   live_view: [signing_salt: "2NyyFJ97"]
 
+config :td_core, TdCore.Auth.Guardian,
+  allowed_algos: ["HS512"],
+  issuer: "tdauth",
+  aud: "truedat",
+  ttl: {1, :hours},
+  secret_key: "SuperSecretTruedat"
+
+config :td_df_lib, :templates_module, TdCluster.Cluster.TdDf.Templates
+
+config :bodyguard, default_error: :forbidden
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails

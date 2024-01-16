@@ -40,7 +40,6 @@ defmodule TdAi.Completion.Suggestion do
       :response,
       :request_time,
       :prompt_id,
-      :resource_mapping_id,
       :status
     ])
   end

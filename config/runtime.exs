@@ -46,6 +46,8 @@ if config_env() == :prod do
     ssl: System.get_env("DB_SSL", "") |> String.downcase() == "true",
     socket_options: maybe_ipv6
 
+  config :td_core, TdCore.Auth.Guardian, secret_key: System.fetch_env!("GUARDIAN_SECRET_KEY")
+
   config :td_ai, :milvus, %{
     host: System.fetch_env!("MILVUS_HOST"),
     port: System.fetch_env!("MILVUS_PORT")

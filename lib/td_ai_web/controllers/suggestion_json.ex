@@ -15,6 +15,23 @@ defmodule TdAiWeb.SuggestionJSON do
     %{data: data(suggestion)}
   end
 
+  def show_content(%{suggestion_content: suggestion_content}) do
+    %{data: suggestion_content}
+  end
+
+  def availability_check(%{response: {status, reason}}) do
+    %{
+      data: %{
+        status: status,
+        reason: reason
+      }
+    }
+  end
+
+  def suggestion(%{response: suggestion}) do
+    %{data: suggestion}
+  end
+
   defp data(%Suggestion{} = suggestion) do
     %{
       id: suggestion.id,

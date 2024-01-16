@@ -21,13 +21,21 @@ defmodule TdAiWeb.ResourceMappingControllerTest do
   end
 
   describe "index" do
+    @tag authentication: [role: "admin"]
     test "lists all resource_mappings", %{conn: conn} do
       conn = get(conn, ~p"/api/resource_mappings")
       assert json_response(conn, 200)["data"] == []
     end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot list resource_mappings", %{conn: conn} do
+      conn = get(conn, ~p"/api/resource_mappings")
+      assert json_response(conn, 403)
+    end
   end
 
   describe "create resource_mapping" do
+    @tag authentication: [role: "admin"]
     test "renders resource_mapping when data is valid", %{conn: conn} do
       conn = post(conn, ~p"/api/resource_mappings", resource_mapping: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
@@ -41,15 +49,23 @@ defmodule TdAiWeb.ResourceMappingControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag authentication: [role: "admin"]
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, ~p"/api/resource_mappings", resource_mapping: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot create resource_mappings", %{conn: conn} do
+      conn = post(conn, ~p"/api/resource_mappings", resource_mapping: @create_attrs)
+      assert response(conn, 403)
     end
   end
 
   describe "update resource_mapping" do
     setup [:create_resource_mapping]
 
+    @tag authentication: [role: "admin"]
     test "renders resource_mapping when data is valid", %{
       conn: conn,
       resource_mapping: %ResourceMapping{id: id} = resource_mapping
@@ -68,6 +84,7 @@ defmodule TdAiWeb.ResourceMappingControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag authentication: [role: "admin"]
     test "renders errors when data is invalid", %{conn: conn, resource_mapping: resource_mapping} do
       conn =
         put(conn, ~p"/api/resource_mappings/#{resource_mapping}",
@@ -76,11 +93,23 @@ defmodule TdAiWeb.ResourceMappingControllerTest do
 
       assert json_response(conn, 422)["errors"] != %{}
     end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot update resource_mappings", %{
+      conn: conn,
+      resource_mapping: resource_mapping
+    } do
+      conn =
+        put(conn, ~p"/api/resource_mappings/#{resource_mapping}", resource_mapping: @update_attrs)
+
+      assert response(conn, 403)
+    end
   end
 
   describe "delete resource_mapping" do
     setup [:create_resource_mapping]
 
+    @tag authentication: [role: "admin"]
     test "deletes chosen resource_mapping", %{conn: conn, resource_mapping: resource_mapping} do
       conn = delete(conn, ~p"/api/resource_mappings/#{resource_mapping}")
       assert response(conn, 204)
@@ -88,6 +117,16 @@ defmodule TdAiWeb.ResourceMappingControllerTest do
       assert_error_sent 404, fn ->
         get(conn, ~p"/api/resource_mappings/#{resource_mapping}")
       end
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot delete resource_mappings", %{
+      conn: conn,
+      resource_mapping: resource_mapping
+    } do
+      conn = delete(conn, ~p"/api/resource_mappings/#{resource_mapping}")
+
+      assert response(conn, 403)
     end
   end
 

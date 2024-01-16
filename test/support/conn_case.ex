@@ -17,6 +17,8 @@ defmodule TdAiWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  import TdCore.TestSupport.Authentication, only: :functions
+
   using do
     quote do
       # The default endpoint for testing
@@ -36,6 +38,15 @@ defmodule TdAiWeb.ConnCase do
 
   setup tags do
     TdAi.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+
+    case tags[:authentication] do
+      nil ->
+        [conn: Phoenix.ConnTest.build_conn()]
+
+      auth_opts ->
+        Phoenix.ConnTest.build_conn()
+        |> put_user_auth(auth_opts)
+        |> assign_permissions(auth_opts[:permissions])
+    end
   end
 end

@@ -36,13 +36,21 @@ defmodule TdAiWeb.PromptControllerTest do
   end
 
   describe "index" do
+    @tag authentication: [role: "admin"]
     test "lists all prompts", %{conn: conn} do
       conn = get(conn, ~p"/api/prompts")
       assert json_response(conn, 200)["data"] == []
     end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot list prompts", %{conn: conn} do
+      conn = get(conn, ~p"/api/prompts")
+      assert json_response(conn, 403)
+    end
   end
 
   describe "create prompt" do
+    @tag authentication: [role: "admin"]
     test "renders prompt when data is valid", %{conn: conn} do
       conn = post(conn, ~p"/api/prompts", prompt: @create_attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
@@ -61,15 +69,23 @@ defmodule TdAiWeb.PromptControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag authentication: [role: "admin"]
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, ~p"/api/prompts", prompt: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot create prompts", %{conn: conn} do
+      conn = post(conn, ~p"/api/prompts", prompt: @create_attrs)
+      assert response(conn, 403)
     end
   end
 
   describe "update prompt" do
     setup [:create_prompt]
 
+    @tag authentication: [role: "admin"]
     test "renders prompt when data is valid", %{conn: conn, prompt: %Prompt{id: id} = prompt} do
       conn = put(conn, ~p"/api/prompts/#{prompt}", prompt: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
@@ -88,15 +104,27 @@ defmodule TdAiWeb.PromptControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag authentication: [role: "admin"]
     test "renders errors when data is invalid", %{conn: conn, prompt: prompt} do
       conn = put(conn, ~p"/api/prompts/#{prompt}", prompt: @invalid_attrs)
       assert json_response(conn, 422)["errors"] != %{}
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot update prompts", %{
+      conn: conn,
+      prompt: prompt
+    } do
+      conn = put(conn, ~p"/api/prompts/#{prompt}", prompt: @update_attrs)
+
+      assert response(conn, 403)
     end
   end
 
   describe "set prompt active" do
     setup [:create_prompt]
 
+    @tag authentication: [role: "admin"]
     test "will make a prompt active", %{conn: conn, prompt: %Prompt{id: id} = prompt} do
       conn = patch(conn, ~p"/api/prompts/#{prompt}/set_active")
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
@@ -109,6 +137,7 @@ defmodule TdAiWeb.PromptControllerTest do
              } = json_response(conn, 200)["data"]
     end
 
+    @tag authentication: [role: "admin"]
     test "will make other prompts with same language and resource_type not active", %{
       conn: conn,
       prompt: %Prompt{id: id, language: language, resource_type: resource_type}
@@ -129,11 +158,18 @@ defmodule TdAiWeb.PromptControllerTest do
                "active" => false
              } = json_response(conn, 200)["data"]
     end
+
+    @tag authentication: [role: "user"]
+    test "non admin cannot make a prompt active", %{conn: conn, prompt: prompt} do
+      conn = patch(conn, ~p"/api/prompts/#{prompt}/set_active")
+      assert response(conn, 403)
+    end
   end
 
   describe "delete prompt" do
     setup [:create_prompt]
 
+    @tag authentication: [role: "admin"]
     test "deletes chosen prompt", %{conn: conn, prompt: prompt} do
       conn = delete(conn, ~p"/api/prompts/#{prompt}")
       assert response(conn, 204)
@@ -141,6 +177,16 @@ defmodule TdAiWeb.PromptControllerTest do
       assert_error_sent 404, fn ->
         get(conn, ~p"/api/prompts/#{prompt}")
       end
+    end
+
+    @tag authentication: [role: "user"]
+    test "non-admin cannot delete prompts", %{
+      conn: conn,
+      prompt: prompt
+    } do
+      conn = delete(conn, ~p"/api/prompts/#{prompt}")
+
+      assert response(conn, 403)
     end
   end
 
