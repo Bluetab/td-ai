@@ -30,5 +30,7 @@ defmodule TdAiWeb.Router do
     end
 
     resources "/suggestions", SuggestionController, except: [:new, :edit]
+    post "/suggestions/availability_check", SuggestionController, :availability_check
+    post "/suggestions/request", SuggestionController, :request
   end
 end

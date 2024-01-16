@@ -32,6 +32,8 @@ config :td_core, TdCore.Auth.Guardian,
   ttl: {1, :hours},
   secret_key: "SuperSecretTruedat"
 
+config :td_df_lib, :templates_module, TdCluster.Cluster.TdDf.Templates
+
 config :bodyguard, default_error: :forbidden
 
 # Configures the mailer

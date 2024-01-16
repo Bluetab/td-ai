@@ -75,9 +75,7 @@ defmodule TdAi.MixProject do
       {:req, "~> 0.4.0"},
       {:openai, "~> 0.5.4"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:td_cluster,
-       git: "https://github.com/Bluetab/td-cluster.git", tag: "5.19.0", override: true},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.0.2"}
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.0.4"}
     ]
   end
 
