@@ -9,6 +9,8 @@ defmodule TdAi.Completion do
 
   alias TdAi.Completion.ResourceMapping
 
+  defdelegate authorize(action, user, params), to: __MODULE__.Policy
+
   @doc """
   Returns the list of resource_mappings.
 
@@ -19,7 +21,9 @@ defmodule TdAi.Completion do
 
   """
   def list_resource_mappings do
-    Repo.all(ResourceMapping)
+    ResourceMapping
+    |> order_by([r], r.id)
+    |> Repo.all()
   end
 
   @doc """
@@ -123,7 +127,9 @@ defmodule TdAi.Completion do
 
   """
   def list_prompts do
-    Repo.all(Prompt)
+    Prompt
+    |> order_by([p], p.id)
+    |> Repo.all()
   end
 
   @doc """

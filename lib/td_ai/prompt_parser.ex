@@ -10,8 +10,7 @@ defmodule TdAi.PromptParser do
   alias TdCluster.Cluster
 
   def parse(%ResourceMapping{fields: fields}, "data_structure", resource_id) do
-    {:ok, structure} =
-      Cluster.TdDd.get_latest_structure_version(resource_id, [:profile])
+    {:ok, structure} = Cluster.TdDd.get_latest_structure_version(resource_id, [:profile])
 
     structure = stringify_keys(structure, true)
 

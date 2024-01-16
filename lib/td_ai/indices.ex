@@ -8,6 +8,8 @@ defmodule TdAi.Indices do
 
   alias TdAi.Indices.Index
 
+  defdelegate authorize(action, user, params), to: __MODULE__.Policy
+
   @doc """
   Returns the list of indices.
 
