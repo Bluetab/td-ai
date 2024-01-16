@@ -87,7 +87,9 @@ defmodule TdAiWeb.ResourceMappingControllerTest do
     @tag authentication: [role: "admin"]
     test "renders errors when data is invalid", %{conn: conn, resource_mapping: resource_mapping} do
       conn =
-        put(conn, ~p"/api/resource_mappings/#{resource_mapping}", resource_mapping: @invalid_attrs)
+        put(conn, ~p"/api/resource_mappings/#{resource_mapping}",
+          resource_mapping: @invalid_attrs
+        )
 
       assert json_response(conn, 422)["errors"] != %{}
     end

@@ -127,7 +127,9 @@ defmodule TdAi.Completion do
 
   """
   def list_prompts do
-    Repo.all(Prompt)
+    Prompt
+    |> order_by([p], p.id)
+    |> Repo.all()
   end
 
   @doc """

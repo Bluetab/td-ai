@@ -37,8 +37,7 @@ defmodule TdAi.Application do
     [
       TdAi.Milvus,
       TdAi.NxServings,
-      TdAi.GenAi,
-      TdAi.FieldCompletion
+      TdAi.GenAi
     ]
   end
 

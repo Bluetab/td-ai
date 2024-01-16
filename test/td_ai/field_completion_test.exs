@@ -6,7 +6,7 @@ defmodule TdAi.FieldCompletionTest do
   alias TdAi.FieldCompletion
   alias TdCluster.TestHelpers.TdDdMock
 
-  describe "run_completion/4" do
+  describe "resource_field_completion/4" do
     test "runs completion and writes suggestion" do
       resource_id = 2
       requested_by = 8
@@ -53,7 +53,83 @@ defmodule TdAi.FieldCompletionTest do
                "user_prompt" =>
                  "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]"
              } =
-               FieldCompletion.run_completion(resource_type, resource_id, [%{name: "field"}],
+               FieldCompletion.resource_field_completion(
+                 resource_type,
+                 resource_id,
+                 [%{name: "field"}],
+                 language: language,
+                 requested_by: requested_by
+               )
+
+      assert [
+               %Suggestion{
+                 response: %{
+                   "model" => "test_model",
+                   "system_prompt" => "some system_prompt",
+                   "user_prompt" =>
+                     "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]"
+                 },
+                 resource_id: ^resource_id,
+                 generated_prompt:
+                   "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]",
+                 requested_by: ^requested_by,
+                 prompt_id: ^prompt_id,
+                 resource_mapping_id: ^resource_mapping_id,
+                 status: "ok"
+               }
+             ] = Completion.list_suggestions()
+    end
+
+    test "ignores json markdown on response" do
+      resource_id = 2
+      requested_by = 8
+      language = "en"
+      resource_type = "data_structure"
+      provider = "mock"
+      model = "test_model"
+
+      %{id: prompt_id} =
+        insert(:prompt,
+          language: language,
+          resource_type: resource_type,
+          active: true,
+          provider: provider,
+          model: model,
+          user_prompt_template: "Structure: {resource} - Fields: {fields}"
+        )
+
+      %{id: resource_mapping_id} =
+        insert(:resource_mapping, fields: [%{source: "name"}], resource_type: resource_type)
+
+      TdDdMock.get_latest_structure_version(
+        &Mox.expect/4,
+        resource_id,
+        {:ok, %{data_structure_id: resource_id, name: "ds_name"}}
+      )
+
+      Mox.expect(TdAi.Provider.Mock, :chat_completion, 1, fn
+        model, system_prompt, user_prompt ->
+          response =
+            %{
+              "model" => model,
+              "system_prompt" => system_prompt,
+              "user_prompt" => user_prompt
+            }
+            |> Jason.encode!()
+
+          {:ok, "```json#{response}```"}
+      end)
+
+      assert %{
+               "model" => "test_model",
+               "system_prompt" => "some system_prompt",
+               "user_prompt" =>
+                 "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]"
+             } =
+               FieldCompletion.resource_field_completion(
+                 resource_type,
+                 resource_id,
+                 [%{name: "field"}],
                  language: language,
                  requested_by: requested_by
                )
@@ -110,7 +186,10 @@ defmodule TdAi.FieldCompletionTest do
       end)
 
       assert {:error, _} =
-               FieldCompletion.run_completion(resource_type, resource_id, [%{name: "field"}],
+               FieldCompletion.resource_field_completion(
+                 resource_type,
+                 resource_id,
+                 [%{name: "field"}],
                  language: language,
                  requested_by: requested_by
                )
@@ -130,21 +209,21 @@ defmodule TdAi.FieldCompletionTest do
     end
   end
 
-  describe "run_available_resource_mapping/2" do
+  describe "available_resource_mapping/2" do
     test "returns true if resource_mapping is available" do
       resource_type = "data_structure"
       selector = %{"selector" => "foo"}
 
       insert(:resource_mapping, selector: selector, resource_type: resource_type)
 
-      assert FieldCompletion.run_available_resource_mapping(resource_type, selector)
+      assert FieldCompletion.available_resource_mapping(resource_type, selector)
     end
 
     test "returns false if resource_mapping is not available" do
       resource_type = "data_structure"
       selector = %{"selector" => "foo"}
 
-      refute FieldCompletion.run_available_resource_mapping(resource_type, selector)
+      refute FieldCompletion.available_resource_mapping(resource_type, selector)
     end
   end
 end
