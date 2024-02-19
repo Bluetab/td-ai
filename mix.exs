@@ -73,7 +73,7 @@ defmodule TdAi.MixProject do
       {:mox, "~> 1.0", only: :test},
       {:bumblebee, "~> 0.4.0"},
       {:req, "~> 0.4.0"},
-      {:openai, "~> 0.5.4"},
+      {:openai, "~> 0.6.1"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.0.4"}
     ]

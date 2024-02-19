@@ -22,6 +22,7 @@ end
 
 config :openai,
   api_key: System.get_env("TD_OPENAI_API_KEY"),
+  api_url: System.get_env("TD_OPENAI_API_URL"),
   http_options: [recv_timeout: 30_000]
 
 # config :td_ai, TdAi.FieldCompletion,
