@@ -6,6 +6,10 @@
 
 - [TD-6425] Ensure SSL if configured for release migration
 
+### Added
+
+- [TD-6426] API_URL configuration for OpenAI provider
+
 ## [6.0.0] 2024-01-17
 
 ### Added
