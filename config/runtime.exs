@@ -22,6 +22,7 @@ end
 
 config :openai,
   api_key: System.get_env("TD_OPENAI_API_KEY"),
+  api_url: System.get_env("TD_OPENAI_API_URL"),
   http_options: [recv_timeout: 30_000]
 
 # config :td_ai, TdAi.FieldCompletion,
@@ -44,6 +45,17 @@ if config_env() == :prod do
     pool_size: System.get_env("DB_POOL_SIZE", "4") |> String.to_integer(),
     timeout: System.get_env("DB_TIMEOUT_MILLIS", "15000") |> String.to_integer(),
     ssl: System.get_env("DB_SSL", "") |> String.downcase() == "true",
+    ssl_opts: [
+      cacertfile: System.get_env("DB_SSL_CACERTFILE", ""),
+      verify:
+        System.get_env("DB_SSL_VERIFY", "verify_none") |> String.downcase() |> String.to_atom(),
+      server_name_indication: System.get_env("DB_HOST") |> to_charlist(),
+      certfile: System.get_env("DB_SSL_CLIENT_CERT", ""),
+      keyfile: System.get_env("DB_SSL_CLIENT_KEY", ""),
+      versions: [
+        System.get_env("DB_SSL_VERSION", "tlsv1.2") |> String.downcase() |> String.to_atom()
+      ]
+    ],
     socket_options: maybe_ipv6
 
   config :td_core, TdCore.Auth.Guardian, secret_key: System.fetch_env!("GUARDIAN_SECRET_KEY")
