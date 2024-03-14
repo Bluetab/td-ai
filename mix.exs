@@ -79,7 +79,8 @@ defmodule TdAi.MixProject do
       {:ex_aws, "~> 2.5.1 "},
       {:ex_aws_bedrock, "~> 2.5"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.0.4"}
+      {:ex_machina, "~> 2.3", only: :test},
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.3.0"},
     ]
   end
 
