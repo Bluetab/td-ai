@@ -23,4 +23,5 @@ docker build --build-arg APP_VERSION=0.1.0 .
 
 ## Environment variable
 
-- `TD_OPENAI_API_KEY` must be available to run ChatCompletion tasks
+- `VAULT_TOKEN` Token for Vault connection
+- `VAULT_SECRETS_PATH` Prefix path for vault secrets

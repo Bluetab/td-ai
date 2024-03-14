@@ -25,6 +25,10 @@ defmodule TdAiWeb.Router do
 
     resources "/resource_mappings", ResourceMappingController, except: [:new, :edit]
 
+    resources "/providers", ProviderController, except: [:new, :edit] do
+      post "/chat_completion", ProviderController, :chat_completion
+    end
+
     resources "/prompts", PromptController, except: [:new, :edit] do
       patch "/set_active", PromptController, :set_active
     end

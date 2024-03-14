@@ -9,6 +9,10 @@
 ### Added
 
 - [TD-6426] API_URL configuration for OpenAI provider
+- [TD-6433]
+  - Provider as a new schema
+  - Support for Azure Openai and Bedrock Claude providers
+  - Endpoint for raw chat_completion
 
 ## [6.0.0] 2024-01-17
 

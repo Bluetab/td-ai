@@ -4,8 +4,9 @@ defmodule TdAi.FieldCompletion do
   """
 
   alias TdAi.Completion
+  alias TdAi.Completion.Messages
   alias TdAi.PromptParser
-  alias TdAi.Provider
+  alias TdAi.ProviderClient
   alias TdCore.Utils.Timer
 
   def resource_field_completion(resource_type, resource, fields, opts \\ [])
@@ -16,14 +17,20 @@ defmodule TdAi.FieldCompletion do
 
     resource_id = Map.get(resource, "id", 0)
 
-    with {:prompt, %{system_prompt: system_prompt, model: model, provider: provider} = prompt} <-
+    with {:prompt,
+          %{
+            system_prompt: system_prompt,
+            provider: provider
+          } = prompt} <-
            {:prompt, Completion.get_prompt_by_resource_and_language(resource_type, language)},
          {:user_prompt, user_prompt} when is_binary(user_prompt) <-
            {:user_prompt, PromptParser.generate_user_prompt(prompt, fields, resource)} do
       Timer.time(
         fn ->
+          messages = Messages.simple_prompt(system_prompt, user_prompt)
+
           provider
-          |> Provider.chat_completion(model, system_prompt, user_prompt)
+          |> ProviderClient.chat_completion(messages)
           |> parse_completion()
         end,
         fn
@@ -66,7 +73,11 @@ defmodule TdAi.FieldCompletion do
     with {:resource_mapping, %{} = resource_mapping} <-
            {:resource_mapping,
             Completion.get_resource_mapping_by_selector(resource_type, selector)},
-         {:prompt, %{system_prompt: system_prompt, model: model, provider: provider} = prompt} <-
+         {:prompt,
+          %{
+            system_prompt: system_prompt,
+            provider: provider
+          } = prompt} <-
            {:prompt, Completion.get_prompt_by_resource_and_language(resource_type, language)},
          {:resource, %{} = resource} <-
            {:resource, PromptParser.parse(resource_mapping, resource_type, resource_id)},
@@ -74,8 +85,10 @@ defmodule TdAi.FieldCompletion do
            {:user_prompt, PromptParser.generate_user_prompt(prompt, fields, resource)} do
       Timer.time(
         fn ->
+          messages = Messages.simple_prompt(system_prompt, user_prompt)
+
           provider
-          |> Provider.chat_completion(model, system_prompt, user_prompt)
+          |> ProviderClient.chat_completion(messages)
           |> parse_completion()
         end,
         fn

@@ -2,6 +2,7 @@ defmodule TdAiWeb.SuggestionControllerTest do
   use TdAiWeb.ConnCase
 
   alias TdAi.Completion.Suggestion
+  alias TdAi.ProviderClients.MockImpl
   alias TdCluster.TestHelpers.TdDfMock
 
   @create_attrs %{
@@ -286,7 +287,6 @@ defmodule TdAiWeb.SuggestionControllerTest do
       template_id = 1
       language = "en"
       resource_type = "business_concept"
-      provider = "mock"
       model = "test_model"
 
       TdDfMock.get_template(
@@ -300,26 +300,23 @@ defmodule TdAiWeb.SuggestionControllerTest do
          }}
       )
 
-      Mox.expect(TdAi.Provider.Mock, :chat_completion, 1, fn
-        model, system_prompt, user_prompt ->
-          response =
-            %{
-              "model" => model,
-              "system_prompt" => system_prompt,
-              "user_prompt" => user_prompt
-            }
-            |> Jason.encode!()
-
-          {:ok, response}
-      end)
+      Mox.expect(
+        TdAi.ProviderClients.Mock,
+        :chat_completion,
+        1,
+        &MockImpl.chat_completion/2
+      )
 
       insert(:prompt,
         language: language,
         resource_type: resource_type,
         active: true,
-        provider: provider,
-        model: model,
-        user_prompt_template: "Structure: {resource} - Fields: {fields}"
+        user_prompt_template: "Structure: {resource} - Fields: {fields}",
+        provider:
+          build(:provider,
+            properties:
+              build(:provider_properties, mock: build(:provider_properties_mock, model: model))
+          )
       )
 
       params = %{
@@ -332,9 +329,14 @@ defmodule TdAiWeb.SuggestionControllerTest do
       conn = post(conn, ~p"/api/suggestions/request", params)
 
       assert %{
-               "model" => "test_model",
-               "system_prompt" => "some system_prompt",
-               "user_prompt" => "Structure: {\"hello\":\"world\"} - Fields: [{\"name\":\"foo\"}]"
+               "provider_properties" => %{"model" => "test_model", "api_key" => nil},
+               "messages" => [
+                 %{"content" => "some system_prompt", "role" => "system"},
+                 %{
+                   "content" => "Structure: {\"hello\":\"world\"} - Fields: [{\"name\":\"foo\"}]",
+                   "role" => "user"
+                 }
+               ]
              } = json_response(conn, 200)["data"]
     end
 
@@ -387,7 +389,6 @@ defmodule TdAiWeb.SuggestionControllerTest do
       template_id = 1
       language = "en"
       resource_type = "business_concept"
-      provider = "mock"
       model = "test_model"
 
       TdDfMock.get_template(
@@ -401,26 +402,23 @@ defmodule TdAiWeb.SuggestionControllerTest do
          }}
       )
 
-      Mox.expect(TdAi.Provider.Mock, :chat_completion, 1, fn
-        model, system_prompt, user_prompt ->
-          response =
-            %{
-              "model" => model,
-              "system_prompt" => system_prompt,
-              "user_prompt" => user_prompt
-            }
-            |> Jason.encode!()
-
-          {:ok, response}
-      end)
+      Mox.expect(
+        TdAi.ProviderClients.Mock,
+        :chat_completion,
+        1,
+        &MockImpl.chat_completion/2
+      )
 
       insert(:prompt,
         language: language,
         resource_type: resource_type,
         active: true,
-        provider: provider,
-        model: model,
-        user_prompt_template: "Structure: {resource} - Fields: {fields}"
+        user_prompt_template: "Structure: {resource} - Fields: {fields}",
+        provider:
+          build(:provider,
+            properties:
+              build(:provider_properties, mock: build(:provider_properties_mock, model: model))
+          )
       )
 
       params = %{
@@ -433,9 +431,14 @@ defmodule TdAiWeb.SuggestionControllerTest do
       conn = post(conn, ~p"/api/suggestions/request", params)
 
       assert %{
-               "model" => "test_model",
-               "system_prompt" => "some system_prompt",
-               "user_prompt" => "Structure: {\"hello\":\"world\"} - Fields: [{\"name\":\"foo\"}]"
+               "provider_properties" => %{"model" => "test_model", "api_key" => nil},
+               "messages" => [
+                 %{"content" => "some system_prompt", "role" => "system"},
+                 %{
+                   "content" => "Structure: {\"hello\":\"world\"} - Fields: [{\"name\":\"foo\"}]",
+                   "role" => "user"
+                 }
+               ]
              } = json_response(conn, 200)["data"]
     end
 

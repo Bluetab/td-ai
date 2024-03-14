@@ -1,6 +1,8 @@
 defmodule TdAiWeb.PromptJSON do
   alias TdAi.Completion.Prompt
 
+  alias TdAiWeb.ProviderJSON
+
   @doc """
   Renders a list of prompts.
   """
@@ -24,8 +26,8 @@ defmodule TdAiWeb.PromptJSON do
       system_prompt: prompt.system_prompt,
       user_prompt_template: prompt.user_prompt_template,
       active: prompt.active,
-      model: prompt.model,
-      provider: prompt.provider
+      provider_id: prompt.provider_id,
+      provider: ProviderJSON.embed(prompt.provider)
     }
   end
 end

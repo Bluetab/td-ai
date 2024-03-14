@@ -6,6 +6,8 @@ defmodule TdAi.Factory do
   use ExMachina.Ecto, repo: TdAi.Repo
 
   alias TdAi.Completion.Prompt
+  alias TdAi.Completion.Provider
+  alias TdAi.Completion.ProviderProperties
   alias TdAi.Completion.ResourceMapping
   alias TdAi.Completion.Suggestion
   alias TdAi.Indices.Index
@@ -49,8 +51,20 @@ defmodule TdAi.Factory do
       resource_type: "some resource_type",
       system_prompt: "some system_prompt",
       user_prompt_template: "some user_prompt_template",
-      model: "some model",
-      provider: "some provider"
+      provider: build(:provider)
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def prompt_params_for_factory(attrs \\ %{}) do
+    %Prompt{
+      active: false,
+      name: sequence(:prompt_mapping_name, &"Name#{&1}"),
+      language: "some language",
+      resource_type: "some resource_type",
+      system_prompt: "some system_prompt",
+      user_prompt_template: "some user_prompt_template",
+      provider: build(:provider_params_for)
     }
     |> merge_attributes(attrs)
   end
@@ -65,6 +79,37 @@ defmodule TdAi.Factory do
       prompt: build(:prompt),
       resource_mapping: build(:resource_mapping),
       status: "ok"
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def provider_factory(attrs \\ %{}) do
+    %Provider{
+      name: "provider_name",
+      type: "mock",
+      properties: build(:provider_properties)
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def provider_params_for_factory(attrs \\ %{}) do
+    %Provider{
+      name: "provider_name",
+      type: "mock",
+      properties: build(:provider_properties_mock_factory)
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def provider_properties_factory(%{mock: %{} = mock}),
+    do: %ProviderProperties{mock: mock}
+
+  def provider_properties_factory(_),
+    do: %ProviderProperties{mock: build(:provider_properties_mock)}
+
+  def provider_properties_mock_factory(attrs) do
+    %ProviderProperties.Mock{
+      model: "some model"
     }
     |> merge_attributes(attrs)
   end
