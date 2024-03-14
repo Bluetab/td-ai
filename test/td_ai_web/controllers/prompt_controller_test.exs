@@ -8,27 +8,21 @@ defmodule TdAiWeb.PromptControllerTest do
     language: "some language",
     resource_type: "some resource_type",
     system_prompt: "some system_prompt",
-    user_prompt_template: "some user_prompt_template",
-    model: "some model",
-    provider: "some provider"
+    user_prompt_template: "some user_prompt_template"
   }
   @update_attrs %{
     name: "some updated name",
     language: "some updated language",
     resource_type: "some updated resource_type",
     system_prompt: "some updated system_prompt",
-    user_prompt_template: "some updated user_prompt_template",
-    model: "some updated model",
-    provider: "some updated provider"
+    user_prompt_template: "some updated user_prompt_template"
   }
   @invalid_attrs %{
     name: nil,
     language: nil,
     resource_type: nil,
     system_prompt: nil,
-    user_prompt_template: nil,
-    model: nil,
-    provider: nil
+    user_prompt_template: nil
   }
 
   setup %{conn: conn} do
@@ -52,7 +46,10 @@ defmodule TdAiWeb.PromptControllerTest do
   describe "create prompt" do
     @tag authentication: [role: "admin"]
     test "renders prompt when data is valid", %{conn: conn} do
-      conn = post(conn, ~p"/api/prompts", prompt: @create_attrs)
+      %{id: provider_id} = insert(:provider)
+      attrs = Map.put(@create_attrs, :provider_id, provider_id)
+
+      conn = post(conn, ~p"/api/prompts", prompt: attrs)
       assert %{"id" => id} = json_response(conn, 201)["data"]
 
       conn = get(conn, ~p"/api/prompts/#{id}")
@@ -64,8 +61,7 @@ defmodule TdAiWeb.PromptControllerTest do
                "resource_type" => "some resource_type",
                "system_prompt" => "some system_prompt",
                "user_prompt_template" => "some user_prompt_template",
-               "model" => "some model",
-               "provider" => "some provider"
+               "provider_id" => ^provider_id
              } = json_response(conn, 200)["data"]
     end
 
@@ -87,7 +83,10 @@ defmodule TdAiWeb.PromptControllerTest do
 
     @tag authentication: [role: "admin"]
     test "renders prompt when data is valid", %{conn: conn, prompt: %Prompt{id: id} = prompt} do
-      conn = put(conn, ~p"/api/prompts/#{prompt}", prompt: @update_attrs)
+      %{id: provider_id} = insert(:provider)
+      attrs = Map.put(@update_attrs, :provider_id, provider_id)
+
+      conn = put(conn, ~p"/api/prompts/#{prompt}", prompt: attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
       conn = get(conn, ~p"/api/prompts/#{id}")
@@ -99,8 +98,7 @@ defmodule TdAiWeb.PromptControllerTest do
                "resource_type" => "some updated resource_type",
                "system_prompt" => "some updated system_prompt",
                "user_prompt_template" => "some updated user_prompt_template",
-               "model" => "some updated model",
-               "provider" => "some updated provider"
+               "provider_id" => ^provider_id
              } = json_response(conn, 200)["data"]
     end
 

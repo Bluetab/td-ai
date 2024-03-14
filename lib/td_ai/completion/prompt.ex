@@ -5,6 +5,8 @@ defmodule TdAi.Completion.Prompt do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias TdAi.Completion.Provider
+
   schema "prompts" do
     field :active, :boolean, default: false
     field :name, :string
@@ -13,32 +15,25 @@ defmodule TdAi.Completion.Prompt do
     field :system_prompt, :string
     field :user_prompt_template, :string
 
-    field :model, :string
-    field :provider, :string
+    belongs_to :provider, Provider
+
     timestamps()
   end
 
   @doc false
   def changeset(prompt, attrs) do
+    all_fields = [
+      :name,
+      :resource_type,
+      :language,
+      :system_prompt,
+      :user_prompt_template,
+      :provider_id
+    ]
+
     prompt
-    |> cast(attrs, [
-      :name,
-      :resource_type,
-      :language,
-      :system_prompt,
-      :user_prompt_template,
-      :model,
-      :provider
-    ])
-    |> validate_required([
-      :name,
-      :resource_type,
-      :language,
-      :system_prompt,
-      :user_prompt_template,
-      :model,
-      :provider
-    ])
+    |> cast(attrs, all_fields)
+    |> validate_required(all_fields)
   end
 
   @doc false

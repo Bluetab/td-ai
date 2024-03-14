@@ -30,7 +30,7 @@ defmodule TdAi.MixProject do
   def application do
     [
       mod: {TdAi.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :vaultex]
     ]
   end
 
@@ -68,12 +68,16 @@ defmodule TdAi.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
+      {:vaultex, "~> 1.0.1"},
+      {:httpoison, "~> 2.0", override: true},
       {:scholar, "~> 0.2.1"},
       {:exla, "~> 0.6.1"},
       {:mox, "~> 1.0", only: :test},
       {:bumblebee, "~> 0.4.0"},
       {:req, "~> 0.4.0"},
       {:openai, "~> 0.6.1"},
+      {:ex_aws, "~> 2.5.1 "},
+      {:ex_aws_bedrock, "~> 2.5"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.0.4"}
     ]

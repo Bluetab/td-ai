@@ -4,6 +4,7 @@ defmodule TdAiWeb.FallbackController do
 
   See `Phoenix.Controller.action_fallback/1` for more details.
   """
+  require Logger
   use TdAiWeb, :controller
 
   # This clause handles errors returned by Ecto's insert/update/delete.
@@ -34,5 +35,29 @@ defmodule TdAiWeb.FallbackController do
     |> put_status(:not_found)
     |> put_view(html: TdAiWeb.ErrorHTML, json: TdAiWeb.ErrorJSON)
     |> render(:"404")
+  end
+
+  def call(conn, {:error, :bad_request, %{"error" => %{"message" => message}}}) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(json: TdAiWeb.ErrorJSON)
+    |> render(:error, message: message)
+  end
+
+  def call(conn, {:error, :bad_request, message}) do
+    conn
+    |> put_status(:bad_request)
+    |> put_view(json: TdAiWeb.ErrorJSON)
+    |> render(:error, message: message)
+  end
+
+  # This clause is an example of how to handle resources that cannot be found.
+  def call(conn, error) do
+    Logger.warning("Unhandled controller fallback: " <> inspect(error))
+
+    conn
+    |> put_status(:bad_request)
+    |> put_view(html: TdAiWeb.ErrorHTML, json: TdAiWeb.ErrorJSON)
+    |> render(:"400")
   end
 end

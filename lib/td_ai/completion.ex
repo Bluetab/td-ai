@@ -4,8 +4,10 @@ defmodule TdAi.Completion do
   """
 
   import Ecto.Query, warn: false
+
   alias Ecto.Multi
   alias TdAi.Repo
+  alias TdAi.Vault
 
   alias TdAi.Completion.ResourceMapping
 
@@ -238,9 +240,16 @@ defmodule TdAi.Completion do
   def get_prompt_by_resource_and_language(resource_type, language) do
     Prompt
     |> Repo.get_by(resource_type: resource_type, language: language, active: true)
-
-    # |> Repo.preload(:resource_mapping)
+    |> maybe_enrich_provider()
   end
+
+  defp maybe_enrich_provider(nil), do: nil
+
+  defp maybe_enrich_provider(prompt),
+    do:
+      prompt
+      |> Repo.preload(:provider)
+      |> Map.update(:provider, nil, &enrich_provider_secrets/1)
 
   alias TdAi.Completion.Suggestion
 
@@ -336,5 +345,144 @@ defmodule TdAi.Completion do
   """
   def change_suggestion(%Suggestion{} = suggestion, attrs \\ %{}) do
     Suggestion.changeset(suggestion, attrs)
+  end
+
+  alias TdAi.Completion.Provider
+
+  @doc """
+  Returns the list of providers.
+
+  ## Examples
+
+      iex> list_providers()
+      [%Provider{}, ...]
+
+  """
+  def list_providers do
+    Repo.all(Provider)
+  end
+
+  @doc """
+  Gets a single provider.
+
+  Raises `Ecto.NoResultsError` if the Provider does not exist.
+
+  ## Examples
+
+      iex> get_provider!(123)
+      %Provider{}
+
+      iex> get_provider!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_provider!(id), do: Repo.get!(Provider, id)
+
+  @doc """
+  Creates a provider.
+
+  ## Examples
+
+      iex> create_provider(%{field: value})
+      {:ok, %Provider{}}
+
+      iex> create_provider(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_provider(attrs \\ %{}) do
+    changeset = Provider.changeset(%Provider{}, attrs)
+
+    Multi.new()
+    |> Multi.insert(:provider, changeset)
+    |> Multi.run(:secrets, fn _, _ -> Provider.secret_properties(%Provider{}, attrs) end)
+    |> Multi.run(:vault, &persist_secrets/2)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{provider: provider}} ->
+        {:ok, provider}
+
+      {:error, _, changeset, _} ->
+        {:error, changeset}
+    end
+  end
+
+  @doc """
+  Updates a provider.
+
+  ## Examples
+
+      iex> update_provider(provider, %{field: new_value})
+      {:ok, %Provider{}}
+
+      iex> update_provider(provider, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_provider(%Provider{} = provider, attrs) do
+    changeset = Provider.changeset(provider, attrs)
+
+    Multi.new()
+    |> Multi.update(:provider, changeset)
+    |> Multi.run(:secrets, fn _, _ ->
+      provider
+      |> enrich_provider_secrets()
+      |> Provider.secret_properties(attrs)
+    end)
+    |> Multi.run(:vault, &persist_secrets/2)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{provider: provider}} ->
+        {:ok, provider}
+
+      {:error, _, changeset, _} ->
+        {:error, changeset}
+    end
+  end
+
+  defp persist_secrets(_, %{provider: provider, secrets: secrets}) do
+    provider
+    |> Provider.vault_key()
+    |> Vault.write_secrets(secrets)
+    |> case do
+      :ok -> {:ok, nil}
+      error -> {:error, error}
+    end
+  end
+
+  def enrich_provider_secrets(%Provider{} = provider) do
+    provider
+    |> Provider.vault_key()
+    |> Vault.maybe_read_secrets()
+    |> Provider.apply_secrets(provider)
+  end
+
+  @doc """
+  Deletes a provider.
+
+  ## Examples
+
+      iex> delete_provider(provider)
+      {:ok, %Provider{}}
+
+      iex> delete_provider(provider)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_provider(%Provider{} = provider) do
+    Repo.delete(provider)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking provider changes.
+
+  ## Examples
+
+      iex> change_provider(provider)
+      %Ecto.Changeset{data: %Provider{}}
+
+  """
+  def change_provider(%Provider{} = provider, attrs \\ %{}) do
+    Provider.changeset(provider, attrs)
   end
 end

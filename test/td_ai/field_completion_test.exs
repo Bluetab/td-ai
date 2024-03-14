@@ -4,6 +4,7 @@ defmodule TdAi.FieldCompletionTest do
 
   alias TdAi.Completion.Suggestion
   alias TdAi.FieldCompletion
+  alias TdAi.ProviderClients.MockImpl
   alias TdCluster.TestHelpers.TdDdMock
 
   describe "resource_field_completion/4" do
@@ -12,17 +13,22 @@ defmodule TdAi.FieldCompletionTest do
       requested_by = 8
       language = "en"
       resource_type = "data_structure"
-      provider = "mock"
       model = "test_model"
+      api_key = "secret"
 
       %{id: prompt_id} =
         insert(:prompt,
           language: language,
           resource_type: resource_type,
           active: true,
-          provider: provider,
-          model: model,
-          user_prompt_template: "Structure: {resource} - Fields: {fields}"
+          user_prompt_template: "Structure: {resource} - Fields: {fields}",
+          provider:
+            build(:provider,
+              properties:
+                build(:provider_properties,
+                  mock: build(:provider_properties_mock, model: model, api_key: api_key)
+                )
+            )
         )
 
       %{id: resource_mapping_id} =
@@ -34,24 +40,23 @@ defmodule TdAi.FieldCompletionTest do
         {:ok, %{data_structure_id: resource_id, name: "ds_name"}}
       )
 
-      Mox.expect(TdAi.Provider.Mock, :chat_completion, 1, fn
-        model, system_prompt, user_prompt ->
-          response =
-            %{
-              "model" => model,
-              "system_prompt" => system_prompt,
-              "user_prompt" => user_prompt
-            }
-            |> Jason.encode!()
-
-          {:ok, response}
-      end)
+      Mox.expect(
+        TdAi.ProviderClients.Mock,
+        :chat_completion,
+        1,
+        &MockImpl.chat_completion/2
+      )
 
       assert %{
-               "model" => "test_model",
-               "system_prompt" => "some system_prompt",
-               "user_prompt" =>
-                 "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]"
+               "provider_properties" => %{"api_key" => "secret", "model" => "test_model"},
+               "messages" => [
+                 %{"content" => "some system_prompt", "role" => "system"},
+                 %{
+                   "content" =>
+                     "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]",
+                   "role" => "user"
+                 }
+               ]
              } =
                FieldCompletion.resource_field_completion(
                  resource_type,
@@ -64,10 +69,15 @@ defmodule TdAi.FieldCompletionTest do
       assert [
                %Suggestion{
                  response: %{
-                   "model" => "test_model",
-                   "system_prompt" => "some system_prompt",
-                   "user_prompt" =>
-                     "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]"
+                   "provider_properties" => %{"model" => "test_model", "api_key" => "secret"},
+                   "messages" => [
+                     %{"content" => "some system_prompt", "role" => "system"},
+                     %{
+                       "content" =>
+                         "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]",
+                       "role" => "user"
+                     }
+                   ]
                  },
                  resource_id: ^resource_id,
                  generated_prompt:
@@ -85,7 +95,6 @@ defmodule TdAi.FieldCompletionTest do
       requested_by = 8
       language = "en"
       resource_type = "data_structure"
-      provider = "mock"
       model = "test_model"
 
       %{id: prompt_id} =
@@ -93,9 +102,12 @@ defmodule TdAi.FieldCompletionTest do
           language: language,
           resource_type: resource_type,
           active: true,
-          provider: provider,
-          model: model,
-          user_prompt_template: "Structure: {resource} - Fields: {fields}"
+          user_prompt_template: "Structure: {resource} - Fields: {fields}",
+          provider:
+            build(:provider,
+              properties:
+                build(:provider_properties, mock: build(:provider_properties_mock, model: model))
+            )
         )
 
       %{id: resource_mapping_id} =
@@ -107,24 +119,23 @@ defmodule TdAi.FieldCompletionTest do
         {:ok, %{data_structure_id: resource_id, name: "ds_name"}}
       )
 
-      Mox.expect(TdAi.Provider.Mock, :chat_completion, 1, fn
-        model, system_prompt, user_prompt ->
-          response =
-            %{
-              "model" => model,
-              "system_prompt" => system_prompt,
-              "user_prompt" => user_prompt
-            }
-            |> Jason.encode!()
-
-          {:ok, "```json#{response}```"}
-      end)
+      Mox.expect(
+        TdAi.ProviderClients.Mock,
+        :chat_completion,
+        1,
+        &MockImpl.chat_completion/2
+      )
 
       assert %{
-               "model" => "test_model",
-               "system_prompt" => "some system_prompt",
-               "user_prompt" =>
-                 "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]"
+               "provider_properties" => %{"model" => "test_model", "api_key" => nil},
+               "messages" => [
+                 %{"content" => "some system_prompt", "role" => "system"},
+                 %{
+                   "content" =>
+                     "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]",
+                   "role" => "user"
+                 }
+               ]
              } =
                FieldCompletion.resource_field_completion(
                  resource_type,
@@ -137,10 +148,15 @@ defmodule TdAi.FieldCompletionTest do
       assert [
                %Suggestion{
                  response: %{
-                   "model" => "test_model",
-                   "system_prompt" => "some system_prompt",
-                   "user_prompt" =>
-                     "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]"
+                   "provider_properties" => %{"model" => "test_model", "api_key" => nil},
+                   "messages" => [
+                     %{"content" => "some system_prompt", "role" => "system"},
+                     %{
+                       "content" =>
+                         "Structure: {\"name\":\"ds_name\"} - Fields: [{\"name\":\"field\"}]",
+                       "role" => "user"
+                     }
+                   ]
                  },
                  resource_id: ^resource_id,
                  generated_prompt:
@@ -158,7 +174,6 @@ defmodule TdAi.FieldCompletionTest do
       requested_by = 8
       language = "en"
       resource_type = "data_structure"
-      provider = "mock"
       model = "test_model"
 
       %{id: prompt_id} =
@@ -166,9 +181,12 @@ defmodule TdAi.FieldCompletionTest do
           language: language,
           resource_type: resource_type,
           active: true,
-          provider: provider,
-          model: model,
-          user_prompt_template: "Structure: {resource} - Fields: {fields}"
+          user_prompt_template: "Structure: {resource} - Fields: {fields}",
+          provider:
+            build(:provider,
+              properties:
+                build(:provider_properties, mock: build(:provider_properties_mock, model: model))
+            )
         )
 
       %{id: resource_mapping_id} =
@@ -180,7 +198,7 @@ defmodule TdAi.FieldCompletionTest do
         {:ok, %{data_structure_id: resource_id, name: "ds_name"}}
       )
 
-      Mox.expect(TdAi.Provider.Mock, :chat_completion, 1, fn _, _, _ ->
+      Mox.expect(TdAi.ProviderClients.Mock, :chat_completion, 1, fn _, _ ->
         response = "invalid json"
         {:ok, response}
       end)

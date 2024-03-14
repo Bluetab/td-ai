@@ -130,14 +130,15 @@ defmodule TdAi.CompletionTest do
     end
 
     test "create_prompt/1 with valid data creates a prompt" do
+      %{id: provider_id} = insert(:provider)
+
       valid_attrs = %{
         name: "some name",
         language: "some language",
         resource_type: "some resource_type",
         system_prompt: "some system_prompt",
         user_prompt_template: "some user_prompt_template",
-        model: "some model",
-        provider: "some provider"
+        provider_id: provider_id
       }
 
       assert {:ok, %Prompt{} = prompt} = Completion.create_prompt(valid_attrs)
@@ -146,8 +147,7 @@ defmodule TdAi.CompletionTest do
       assert prompt.resource_type == "some resource_type"
       assert prompt.system_prompt == "some system_prompt"
       assert prompt.user_prompt_template == "some user_prompt_template"
-      assert prompt.model == "some model"
-      assert prompt.provider == "some provider"
+      assert prompt.provider_id == provider_id
     end
 
     test "create_prompt/1 with invalid data returns error changeset" do
@@ -155,6 +155,7 @@ defmodule TdAi.CompletionTest do
     end
 
     test "update_prompt/2 with valid data updates the prompt" do
+      %{id: provider_id} = insert(:provider)
       prompt = insert(:prompt)
 
       update_attrs = %{
@@ -163,8 +164,7 @@ defmodule TdAi.CompletionTest do
         resource_type: "some updated resource_type",
         system_prompt: "some updated system_prompt",
         user_prompt_template: "some updated user_prompt_template",
-        model: "some updated model",
-        provider: "some updated provider"
+        provider_id: provider_id
       }
 
       assert {:ok, %Prompt{} = prompt} = Completion.update_prompt(prompt, update_attrs)
@@ -173,8 +173,7 @@ defmodule TdAi.CompletionTest do
       assert prompt.resource_type == "some updated resource_type"
       assert prompt.system_prompt == "some updated system_prompt"
       assert prompt.user_prompt_template == "some updated user_prompt_template"
-      assert prompt.model == "some updated model"
-      assert prompt.provider == "some updated provider"
+      assert prompt.provider_id == provider_id
     end
 
     test "update_prompt/2 with invalid data returns error changeset" do
@@ -199,6 +198,36 @@ defmodule TdAi.CompletionTest do
       insert(:prompt, name: "resource2", resource_type: "foo", language: "bar", active: false)
 
       assert %Prompt{name: "resource1"} =
+               Completion.get_prompt_by_resource_and_language("foo", "bar")
+    end
+
+    test "get_prompt_by_resource_and_language/1 enriches provider and secret" do
+      model = "model1"
+      api_key = "secret"
+
+      insert(:prompt,
+        resource_type: "foo",
+        language: "bar",
+        active: true,
+        provider:
+          build(:provider,
+            properties:
+              build(:provider_properties,
+                mock: build(:provider_properties_mock, model: model, api_key: api_key)
+              )
+          )
+      )
+
+      assert %Prompt{
+               provider: %{
+                 properties: %{
+                   mock: %{
+                     model: ^model,
+                     api_key: ^api_key
+                   }
+                 }
+               }
+             } =
                Completion.get_prompt_by_resource_and_language("foo", "bar")
     end
 
@@ -299,6 +328,164 @@ defmodule TdAi.CompletionTest do
     test "change_suggestion/1 returns a suggestion changeset" do
       suggestion = insert(:suggestion)
       assert %Ecto.Changeset{} = Completion.change_suggestion(suggestion)
+    end
+  end
+
+  describe "providers" do
+    alias TdAi.Completion.Provider
+    alias TdAi.Completion.ProviderProperties
+    alias TdAi.Vault
+
+    @valid_attrs %{
+      name: "some name",
+      type: "mock",
+      properties: %{
+        model: "model",
+        api_key: "secret"
+      }
+    }
+
+    @invalid_attrs %{name: nil, type: nil, properties: nil}
+
+    test "list_providers/0 returns all providers" do
+      provider = insert(:provider)
+      assert Completion.list_providers() == [provider]
+    end
+
+    test "get_provider!/1 returns the provider with given id" do
+      provider = insert(:provider)
+      assert Completion.get_provider!(provider.id) == provider
+    end
+
+    test "create_provider/1 with valid data creates a provider and write secrets" do
+      assert {:ok, %Provider{} = provider} = Completion.create_provider(@valid_attrs)
+      assert provider.name == "some name"
+      assert provider.type == "mock"
+
+      assert %{mock: %{} = properties} = provider.properties
+      assert properties == %ProviderProperties.Mock{model: "model", api_key: nil}
+
+      secrets =
+        provider
+        |> Provider.vault_key()
+        |> Vault.read_secrets()
+
+      assert secrets == %{"api_key" => "secret"}
+    end
+
+    test "create_provider/1 secrets are not written in the database" do
+      assert {:ok, %Provider{id: id} = provider} = Completion.create_provider(@valid_attrs)
+      assert provider.name == "some name"
+      assert provider.type == "mock"
+
+      assert %{mock: %{} = properties} = provider.properties
+      assert properties == %ProviderProperties.Mock{model: "model", api_key: nil}
+
+      assert %Provider{properties: %{mock: %{model: "model", api_key: nil}}} =
+               Repo.get(Provider, id)
+    end
+
+    test "create_provider/1 fails with invalid provider type" do
+      invalid_type_attrs = %{
+        name: "some name",
+        type: "invalid",
+        properties: %{}
+      }
+
+      assert {:error,
+              %{
+                errors: [
+                  type: {"is invalid", _}
+                ],
+                valid?: false
+              }} =
+               Completion.create_provider(invalid_type_attrs)
+    end
+
+    test "create_provider/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Completion.create_provider(@invalid_attrs)
+    end
+
+    test "update_provider/2 with valid data updates the provider" do
+      provider = insert(:provider)
+
+      update_attrs = %{
+        name: "some updated name",
+        type: "openai",
+        properties: %{
+          model: "new_model",
+          organization_key: "organization_key"
+        }
+      }
+
+      assert {:ok, %Provider{} = provider} = Completion.update_provider(provider, update_attrs)
+      assert provider.name == "some updated name"
+      assert provider.type == "openai"
+
+      assert %{
+               openai: %{
+                 model: "new_model",
+                 organization_key: "organization_key"
+               }
+             } =
+               provider.properties
+    end
+
+    test "update_provider/2 updates secrets only with non-empty value" do
+      assert {:ok, %Provider{} = provider} = Completion.create_provider(@valid_attrs)
+      provider_vault_key = Provider.vault_key(provider)
+
+      assert Vault.read_secrets(provider_vault_key) == %{"api_key" => "secret"}
+
+      update_attrs = %{properties: %{model: "model1"}}
+      assert {:ok, _} = Completion.update_provider(provider, update_attrs)
+
+      assert Vault.read_secrets(provider_vault_key) == %{"api_key" => "secret"}
+
+      update_attrs = %{properties: %{model: "model1", api_key: nil}}
+      assert {:ok, _} = Completion.update_provider(provider, update_attrs)
+
+      assert Vault.read_secrets(provider_vault_key) == %{"api_key" => "secret"}
+
+      update_attrs = %{properties: %{model: "model1", api_key: ""}}
+      assert {:ok, _} = Completion.update_provider(provider, update_attrs)
+
+      assert Vault.read_secrets(provider_vault_key) == %{"api_key" => "secret"}
+
+      update_attrs = %{properties: %{model: "model1", api_key: "otro"}}
+      assert {:ok, _} = Completion.update_provider(provider, update_attrs)
+
+      assert Vault.read_secrets(provider_vault_key) == %{"api_key" => "otro"}
+    end
+
+    test "update_provider/2 with invalid data returns error changeset" do
+      provider = insert(:provider)
+      assert {:error, %Ecto.Changeset{}} = Completion.update_provider(provider, @invalid_attrs)
+      assert provider == Completion.get_provider!(provider.id)
+    end
+
+    test "enrich_provider_secrets/1 fills the provider properties secrets" do
+      assert {:ok, %Provider{} = provider} = Completion.create_provider(@valid_attrs)
+
+      assert %{
+               properties: %{
+                 mock: %{
+                   model: "model",
+                   api_key: "secret"
+                 }
+               }
+             } = Completion.enrich_provider_secrets(provider)
+    end
+
+    test "delete_provider/1 deletes the provider" do
+      provider = insert(:provider)
+      assert {:ok, %Provider{}} = Completion.delete_provider(provider)
+      assert_raise Ecto.NoResultsError, fn -> Completion.get_provider!(provider.id) end
+    end
+
+    test "change_provider/1 returns a provider changeset" do
+      provider = insert(:provider)
+      assert %Ecto.Changeset{} = Completion.change_provider(provider)
     end
   end
 end

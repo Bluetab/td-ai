@@ -37,3 +37,9 @@ config :phoenix, :plug_init_mode, :runtime
 config :td_cache, redis_host: "redis", port: 6380
 
 config :td_ai, :gen_ai_module, TdAi.GenAiMock
+
+config :td_ai, TdAi.Vault,
+  token: "vault_secret_token1234",
+  secrets_path: "secret/data/ai/"
+
+config :vaultex, vault_addr: "http://vault:8200"
