@@ -84,3 +84,9 @@ config :td_ai, :milvus, %{
   host: "http://localhost",
   port: "9091"
 }
+
+config :td_ai, TdAi.Vault,
+  token: "vault_secret_token1234",
+  secrets_path: "secret/data/ai/"
+
+config :vaultex, vault_addr: "http://vault:8200"

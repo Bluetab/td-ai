@@ -22,7 +22,7 @@ defmodule TdAi.TestOperators do
 
   ## Equality test for data structures without comparing Ecto associations.
   defp approximately_equal(%Prompt{} = a, %Prompt{} = b) do
-    drop_fields = [:resource_mapping]
+    drop_fields = [:resource_mapping, :provider]
 
     Map.drop(a, drop_fields) == Map.drop(b, drop_fields)
   end

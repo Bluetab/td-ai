@@ -194,7 +194,6 @@ defmodule TdAi.Milvus do
         json: json
       )
       |> get_reply()
-      |> dbg
 
     {:reply, reply, state}
   end

@@ -1,6 +1,16 @@
 # Changelog
 
- ## [6.2.0] 2023-11-02
+## [6.3.0] 2024-03-18
+
+### Added
+
+- [TD-4110] Allow structure scoped permissions management
+- [TD-6433]
+  - Provider as a new schema
+  - Support for Azure Openai and Bedrock Claude providers
+  - Endpoint for raw chat_completion
+
+## [6.2.0] 2023-11-02
 
 ### Fixed
 
