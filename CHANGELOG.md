@@ -6,7 +6,6 @@
 
 - [TD-6527] Add LICENSE file
 
-
 ### Fixed
 
 - [TD-6401] Update td_core
