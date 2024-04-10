@@ -1,5 +1,15 @@
 # Changelog
 
+## [6.4.0] 2024-04-09
+
+### Added
+
+- [TD-6527] Add LICENSE file
+
+### Fixed
+
+- [TD-6401] Update td_core
+
 ## [6.3.0] 2024-03-18
 
 ### Added
