@@ -1,11 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [6.4.0] 2024-04-09
 
 ### Added
 
 - [TD-6527] Add LICENSE file
-
 
 ### Fixed
 
