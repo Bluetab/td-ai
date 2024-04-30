@@ -6,7 +6,7 @@ defmodule TdAi.MixProject do
       app: :td_ai,
       version:
         case System.get_env("APP_VERSION") do
-          nil -> "6.4.0-local"
+          nil -> "6.5.0-local"
           v -> v
         end,
       elixir: "~> 1.15",
@@ -80,7 +80,7 @@ defmodule TdAi.MixProject do
       {:ex_aws_bedrock, "~> 2.5"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:ex_machina, "~> 2.3", only: :test},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.4.0"}
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.5.2"},
     ]
   end
 

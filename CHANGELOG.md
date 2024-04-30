@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.5.0] 2024-04-30
+
+### Added
+
+- [TD-6535] Update Td-core for Elasticsearch reindex improvements and fix index deletion by name
+
 ## [6.4.0] 2024-04-09
 
 ### Added
