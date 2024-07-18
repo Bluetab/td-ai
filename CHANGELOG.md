@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- [TD-6713] Update Td-core
+
 ## [6.5.0] 2024-04-30
 
 ### Added
