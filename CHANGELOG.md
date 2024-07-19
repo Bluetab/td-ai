@@ -6,6 +6,12 @@
 
 - [TD-6602] Update td-core
 
+## [6.8.1] 2024-07-18
+
+### Added
+
+- [TD-6713] Update td-core
+
 ## [6.5.0] 2024-04-30
 
 ### Added
