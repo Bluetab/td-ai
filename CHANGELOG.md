@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.9.2] 2024-07-29
+
+### Added
+
+- [TD-6734] Update td-core
+
 ## [6.9.1] 2024-07-26
 
 ### Added
