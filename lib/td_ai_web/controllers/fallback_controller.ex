@@ -15,6 +15,13 @@ defmodule TdAiWeb.FallbackController do
     |> render(:error, changeset: changeset)
   end
 
+  def call(conn, nil) do
+    conn
+    |> put_status(:not_found)
+    |> put_view(json: TdAiWeb.ErrorJSON)
+    |> render(:"404")
+  end
+
   def call(conn, {:error, :unprocessable_entity, message}) do
     conn
     |> put_status(:unprocessable_entity)
