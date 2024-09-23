@@ -5,6 +5,7 @@ defmodule TdAi.Factory do
 
   use ExMachina.Ecto, repo: TdAi.Repo
 
+  alias TdAi.Actions.Action
   alias TdAi.Completion.Prompt
   alias TdAi.Completion.Provider
   alias TdAi.Completion.ProviderProperties
@@ -12,6 +13,15 @@ defmodule TdAi.Factory do
   alias TdAi.Completion.Suggestion
   alias TdAi.Indices.Index
   alias TdAi.Predictions.Prediction
+
+  def action_factory(attrs \\ %{}) do
+    %Action{
+      name: sequence(:action_name, &"Action#{&1}"),
+      user_id: sequence(:user_id, & &1),
+      type: "template_name"
+    }
+    |> merge_attributes(attrs)
+  end
 
   def index_factory(attrs \\ %{}) do
     %Index{
@@ -112,5 +122,14 @@ defmodule TdAi.Factory do
       model: "some model"
     }
     |> merge_attributes(attrs)
+  end
+
+  defp default_assoc(attrs, id_key, key, build_key \\ nil, build_params \\ %{}) do
+    if Enum.any?([key, id_key], &Map.has_key?(attrs, &1)) do
+      attrs
+    else
+      build_key = if build_key, do: build_key, else: key
+      Map.put(attrs, key, build(build_key, build_params))
+    end
   end
 end

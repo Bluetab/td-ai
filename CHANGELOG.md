@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.12.0] 2024-09-23
+
+### Added
+
+- [TD-6184] Actions functionality
+
 ## [6.9.2] 2024-07-29
 
 ### Added

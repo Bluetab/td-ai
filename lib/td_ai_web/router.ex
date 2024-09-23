@@ -20,6 +20,14 @@ defmodule TdAiWeb.Router do
   scope "/api", TdAiWeb do
     pipe_through([:api, :api_auth])
 
+    resources("/actions", ActionController, except: [:new, :edit]) do
+      post "/set_active", ActionController, :set_active
+    end
+
+    post "/actions/search", ActionController, :search
+
+    post "/actions/me", ActionController, :actions_by_user
+
     resources("/indices", IndexController, except: [:new, :edit])
     resources("/predictions", PredictionController, except: [:new, :edit])
 
