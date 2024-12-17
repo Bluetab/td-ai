@@ -17,8 +17,6 @@ defmodule TdAiWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
-
   def router do
     quote do
       use Phoenix.Router, helpers: false
@@ -26,13 +24,6 @@ defmodule TdAiWeb do
       # Import common connection and controller functions to use in pipelines
       import Plug.Conn
       import Phoenix.Controller
-      import Phoenix.LiveView.Router
-    end
-  end
-
-  def channel do
-    quote do
-      use Phoenix.Channel
     end
   end
 
@@ -43,7 +34,6 @@ defmodule TdAiWeb do
         layouts: [html: TdAiWeb.Layouts]
 
       import Plug.Conn
-      import TdAiWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -53,8 +43,7 @@ defmodule TdAiWeb do
     quote do
       use Phoenix.VerifiedRoutes,
         endpoint: TdAiWeb.Endpoint,
-        router: TdAiWeb.Router,
-        statics: TdAiWeb.static_paths()
+        router: TdAiWeb.Router
     end
   end
 

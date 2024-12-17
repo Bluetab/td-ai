@@ -9,15 +9,6 @@ defmodule TdAiWeb.ChangesetJSON do
   end
 
   defp translate_error({msg, opts}) do
-    # You can make use of gettext to translate error messages by
-    # uncommenting and adjusting the following code:
-
-    # if count = opts[:count] do
-    #   Gettext.dngettext(TdAiWeb.Gettext, "errors", msg, msg, count, opts)
-    # else
-    #   Gettext.dgettext(TdAiWeb.Gettext, "errors", msg, opts)
-    # end
-
     Enum.reduce(opts, msg, fn {key, value}, acc ->
       String.replace(acc, "%{#{key}}", fn _ -> to_string(value) end)
     end)
