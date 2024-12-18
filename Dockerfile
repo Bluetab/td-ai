@@ -1,4 +1,4 @@
-### Minimal runtime image based on alpine:3.18
+### Minimal runtime image based on debian:bullseye
 ARG RUNTIME_BASE=debian:bullseye
 
 FROM ${RUNTIME_BASE}
