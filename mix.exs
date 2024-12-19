@@ -50,6 +50,7 @@ defmodule TdAi.MixProject do
     [
       {:phoenix, "~> 1.7.18"},
       {:phoenix_ecto, "~> 4.6.3"},
+      {:plug_cowboy, "~> 2.7"},
       {:ecto_sql, "~> 3.12.1"},
       {:postgrex, "~> 0.19.3"},
       {:bodyguard, "~> 2.4.3"},
