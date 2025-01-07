@@ -9,7 +9,7 @@ defmodule TdAi.MixProject do
           nil -> "6.12.0-local"
           v -> v
         end,
-      elixir: "~> 1.17",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -67,7 +67,7 @@ defmodule TdAi.MixProject do
       {:openai, "~> 0.6.2"},
       {:ex_aws, "~> 2.5.8 "},
       {:ex_aws_bedrock, "~> 2.5.1"},
-      {:credo, "~> 1.7.10", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7.11", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
       {:ex_machina, "~> 2.8", only: :test},
       {:mox, "~> 1.2.0", only: :test}

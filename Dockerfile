@@ -1,5 +1,5 @@
-### Minimal runtime image based on debian:bullseye
-ARG RUNTIME_BASE=debian:bullseye
+### Minimal runtime image based on debian:bookworm
+ARG RUNTIME_BASE=debian:bookworm
 
 FROM ${RUNTIME_BASE}
 

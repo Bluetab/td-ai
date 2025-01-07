@@ -5,7 +5,7 @@
 ### Changed
 
 - [TD-6911]
-  - update Elixir 1.17
+  - update Elixir 1.18
   - update dependencies
   - remove unused dependencies
 
