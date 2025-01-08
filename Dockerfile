@@ -1,5 +1,5 @@
-### Minimal runtime image based on alpine:3.18
-ARG RUNTIME_BASE=debian:bullseye
+### Minimal runtime image based on debian:bookworm
+ARG RUNTIME_BASE=debian:bookworm
 
 FROM ${RUNTIME_BASE}
 

@@ -123,13 +123,4 @@ defmodule TdAi.Factory do
     }
     |> merge_attributes(attrs)
   end
-
-  defp default_assoc(attrs, id_key, key, build_key \\ nil, build_params \\ %{}) do
-    if Enum.any?([key, id_key], &Map.has_key?(attrs, &1)) do
-      attrs
-    else
-      build_key = if build_key, do: build_key, else: key
-      Map.put(attrs, key, build(build_key, build_params))
-    end
-  end
 end

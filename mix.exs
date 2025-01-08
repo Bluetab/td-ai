@@ -9,7 +9,7 @@ defmodule TdAi.MixProject do
           nil -> "6.12.0-local"
           v -> v
         end,
-      elixir: "~> 1.15",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -48,39 +48,29 @@ defmodule TdAi.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.7"},
-      {:phoenix_ecto, "~> 4.4"},
-      {:ecto_sql, "~> 3.10"},
-      {:postgrex, ">= 0.0.0"},
-      {:bodyguard, "~> 2.4"},
-      {:guardian, "~> 2.0"},
-      {:phoenix_html, "~> 3.3"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.19.0"},
-      {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.8.0"},
-      {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
-      {:swoosh, "~> 1.3"},
-      {:finch, "~> 0.13"},
-      {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.20"},
-      {:jason, "~> 1.2"},
-      {:plug_cowboy, "~> 2.5"},
+      {:phoenix, "~> 1.7.18"},
+      {:phoenix_ecto, "~> 4.6.3"},
+      {:plug_cowboy, "~> 2.7"},
+      {:ecto_sql, "~> 3.12.1"},
+      {:postgrex, "~> 0.19.3"},
+      {:bodyguard, "~> 2.4.3"},
+      {:telemetry_metrics, "~> 1.0"},
+      {:telemetry_poller, "~> 1.1.0"},
+      {:jason, "~> 1.4.4"},
       {:vaultex, "~> 1.0.1"},
-      {:httpoison, "~> 2.0", override: true},
-      {:scholar, "~> 0.2.1"},
-      {:exla, "~> 0.6.1"},
-      {:mox, "~> 1.0", only: :test},
-      {:bumblebee, "~> 0.4.0"},
-      {:req, "~> 0.4.0"},
-      {:openai, "~> 0.6.1"},
-      {:ex_aws, "~> 2.5.1 "},
-      {:ex_aws_bedrock, "~> 2.5"},
-      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
-      {:ex_machina, "~> 2.3", only: :test},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "6.9.6"}
+      {:httpoison, "~> 2.2.1", override: true},
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.0.0"},
+      {:scholar, "~> 0.3.1"},
+      {:exla, "~> 0.9.2"},
+      {:bumblebee, "~> 0.6.0"},
+      {:req, "~> 0.5.8"},
+      {:openai, "~> 0.6.2"},
+      {:ex_aws, "~> 2.5.8 "},
+      {:ex_aws_bedrock, "~> 2.5.1"},
+      {:credo, "~> 1.7.11", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
+      {:ex_machina, "~> 2.8", only: :test},
+      {:mox, "~> 1.2.0", only: :test}
     ]
   end
 
@@ -95,10 +85,7 @@ defmodule TdAi.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind default", "esbuild default"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]
   end
 end

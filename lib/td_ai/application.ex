@@ -17,8 +17,6 @@ defmodule TdAi.Application do
         TdAi.Repo,
         # Start the PubSub system
         {Phoenix.PubSub, name: TdAi.PubSub},
-        # Start Finch
-        {Finch, name: TdAi.Finch},
         # Start the Endpoint (http/https)
         TdAiWeb.Endpoint
         # Start a worker by calling: TdAi.Worker.start_link(arg)

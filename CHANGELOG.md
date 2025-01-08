@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- [TD-6911]
+  - update Elixir 1.18
+  - update dependencies
+  - remove unused dependencies
+
 ## [6.12.0] 2024-09-23
 
 ### Added

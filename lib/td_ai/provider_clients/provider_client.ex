@@ -3,9 +3,7 @@ defmodule TdAi.ProviderClient do
   Providers for ai models
   """
 
-  alias TdAi.Completion.Messages
-
-  @callback chat_completion(map(), Messages.t()) ::
+  @callback chat_completion(map(), any()) ::
               {:ok, term} | {:error, atom}
 
   def chat_completion(
