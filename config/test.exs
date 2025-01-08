@@ -20,13 +20,7 @@ config :td_ai, TdAiWeb.Endpoint,
   secret_key_base: "f+UdlJ/JnU73cIL5riKC+FQ6JYN1Qsxei5XBj+J5vgHo1tfnTulOk+TwH3QzrqkP",
   server: false
 
-# In test we don't send emails.
-config :td_ai, TdAi.Mailer, adapter: Swoosh.Adapters.Test
-
 config :td_cluster, TdCluster.ClusterHandler, MockClusterHandler
-
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
 
 # Print only warnings and errors during test
 config :logger, level: :warning
