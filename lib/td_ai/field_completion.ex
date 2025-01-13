@@ -58,10 +58,7 @@ defmodule TdAi.FieldCompletion do
         end
       )
     else
-      {:resource_mapping, _} -> {:error, :invalid_resource_mapping}
       {:prompt, _} -> {:error, :invalid_prompt}
-      {:resource, _} -> {:error, :unable_to_parse_resource}
-      {:user_prompt, _} -> {:error, :unable_to_generate_user_prompt}
     end
   end
 
@@ -121,7 +118,6 @@ defmodule TdAi.FieldCompletion do
       {:resource_mapping, _} -> {:error, :invalid_resource_mapping}
       {:prompt, _} -> {:error, :invalid_prompt}
       {:resource, _} -> {:error, :unable_to_parse_resource}
-      {:user_prompt, _} -> {:error, :unable_to_generate_user_prompt}
     end
   end
 
