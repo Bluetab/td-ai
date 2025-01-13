@@ -67,9 +67,6 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
-
 config :td_ai, :milvus, %{
   host: "http://localhost",
   port: "9091"
