@@ -22,6 +22,7 @@ defmodule TdAi.ProviderClient do
   defp impl("azure_openai"), do: TdAi.ProviderClients.AzureOpenai
   defp impl("bedrock_claude"), do: TdAi.ProviderClients.BedrockClaude
   defp impl("openai"), do: TdAi.ProviderClients.Openai
+  defp impl("gemini"), do: TdAi.ProviderClients.Gemini
   defp impl("mock"), do: TdAi.ProviderClients.Mock
   defp impl(_), do: :invalid_provider
 end
