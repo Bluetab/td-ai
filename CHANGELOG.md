@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- [TD-7049] Add gemini provider
+
 ## [7.0.0] 2025-01-13
 
 ### Changed
