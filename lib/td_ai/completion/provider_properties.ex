@@ -9,12 +9,14 @@ defmodule TdAi.Completion.ProviderProperties do
 
   alias TdAi.Completion.ProviderProperties.AzureOpenai
   alias TdAi.Completion.ProviderProperties.BedrockClaude
+  alias TdAi.Completion.ProviderProperties.Gemini
   alias TdAi.Completion.ProviderProperties.Mock
   alias TdAi.Completion.ProviderProperties.Openai
 
   @embeds %{
     azure_openai: AzureOpenai,
     bedrock_claude: BedrockClaude,
+    gemini: Gemini,
     mock: Mock,
     openai: Openai
   }
