@@ -7,7 +7,7 @@ defmodule TdAi.Completion.Provider do
 
   alias TdAi.Completion.ProviderProperties
 
-  @valid_types ["mock", "openai", "azure_openai", "bedrock_claude"]
+  @valid_types ["mock", "openai", "azure_openai", "bedrock_claude", "gemini"]
 
   schema "providers" do
     field :name, :string
