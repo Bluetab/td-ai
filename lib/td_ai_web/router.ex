@@ -44,5 +44,9 @@ defmodule TdAiWeb.Router do
     resources "/suggestions", SuggestionController, except: [:new, :edit]
     post "/suggestions/availability_check", SuggestionController, :availability_check
     post "/suggestions/request", SuggestionController, :request
+
+    resources "/translations", TranslationController, except: [:new, :edit]
+    post "/translations/availability_check", TranslationController, :availability_check
+    post "/translations/request", TranslationController, :request
   end
 end

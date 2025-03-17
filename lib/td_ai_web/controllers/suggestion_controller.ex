@@ -4,6 +4,7 @@ defmodule TdAiWeb.SuggestionController do
   alias TdAi.Completion
   alias TdAi.Completion.Suggestion
   alias TdAi.FieldCompletion
+  alias TdCache.I18nCache
   alias TdDfLib.Templates
 
   action_fallback TdAiWeb.FallbackController
@@ -57,18 +58,18 @@ defmodule TdAiWeb.SuggestionController do
           "template_id" => template_id
         } = params
       ) do
-    language = Map.get(params, "language", "en")
+    {:ok, default_locale} = I18nCache.get_default_locale()
+    language = Map.get(params, "language", default_locale)
     claims = conn.assigns[:current_resource]
 
     {status, reason} =
-      with {:authorized, :ok} <-
-             {:authorized,
-              Bodyguard.permit(
-                Completion,
-                :request_suggestion,
-                claims,
-                {resource_type, domain_ids}
-              )},
+      with :ok <-
+             Bodyguard.permit(
+               Completion,
+               :request_suggestion,
+               claims,
+               {resource_type, domain_ids}
+             ),
            {:template_suggestions, true} <-
              {:template_suggestions, Templates.has_ai_suggestions(template_id)},
            {:prompt, %{}} <-
@@ -77,8 +78,8 @@ defmodule TdAiWeb.SuggestionController do
       else
         {:template_suggestions, {:error, :template_not_found}} -> {:error, "template not found"}
         {:template_suggestions, false} -> {:error, "template has no ai_suggestion fields"}
-        {:authorized, _} -> {:error, "forbidden"}
         {:prompt, _} -> {:error, "no active prompt"}
+        error -> error
       end
 
     render(conn, :availability_check, response: {status, reason})
@@ -93,7 +94,8 @@ defmodule TdAiWeb.SuggestionController do
           "template_id" => template_id
         } = params
       ) do
-    language = Map.get(params, "language", "en")
+    {:ok, default_locale} = I18nCache.get_default_locale()
+    language = Map.get(params, "language", default_locale)
     %{user_id: user_id} = claims = conn.assigns[:current_resource]
 
     with :ok <-
