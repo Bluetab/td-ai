@@ -12,6 +12,10 @@ defmodule TdAi.Completion.Policy do
     Permissions.all_authorized?(claims, :ai_business_concepts, domain_ids)
   end
 
+  def authorize(:request_translation, %{} = claims, {"business_concept", domain_ids}) do
+    Permissions.all_authorized?(claims, :ai_business_concepts, domain_ids)
+  end
+
   # No other users can do nothing
   def authorize(_action, _claims, _params), do: false
 end

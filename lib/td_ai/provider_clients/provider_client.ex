@@ -24,5 +24,4 @@ defmodule TdAi.ProviderClient do
   defp impl("openai"), do: TdAi.ProviderClients.Openai
   defp impl("gemini"), do: TdAi.ProviderClients.Gemini
   defp impl("mock"), do: TdAi.ProviderClients.Mock
-  defp impl(_), do: :invalid_provider
 end

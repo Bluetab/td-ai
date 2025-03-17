@@ -7,12 +7,14 @@ defmodule TdAi.FieldCompletion do
   alias TdAi.Completion.Messages
   alias TdAi.PromptParser
   alias TdAi.ProviderClient
+  alias TdCache.I18nCache
   alias TdCore.Utils.Timer
 
   def resource_field_completion(resource_type, resource, fields, opts \\ [])
 
   def resource_field_completion(resource_type, %{} = resource, fields, opts) do
-    language = Keyword.get(opts, :language, "en")
+    {:ok, default_locale} = I18nCache.get_default_locale()
+    language = Keyword.get(opts, :language, default_locale)
     requested_by = Keyword.get(opts, :requested_by)
 
     resource_id = Map.get(resource, "id", 0)
@@ -24,7 +26,7 @@ defmodule TdAi.FieldCompletion do
           } = prompt} <-
            {:prompt, Completion.get_prompt_by_resource_and_language(resource_type, language)},
          {:user_prompt, user_prompt} when is_binary(user_prompt) <-
-           {:user_prompt, PromptParser.generate_user_prompt(prompt, fields, resource)} do
+           {:user_prompt, PromptParser.generate_user_prompt(prompt, fields, resource, opts)} do
       Timer.time(
         fn ->
           messages = Messages.simple_prompt(system_prompt, user_prompt)
@@ -63,7 +65,8 @@ defmodule TdAi.FieldCompletion do
   end
 
   def resource_field_completion(resource_type, resource_id, fields, opts) do
-    language = Keyword.get(opts, :language, "en")
+    {:ok, default_locale} = I18nCache.get_default_locale()
+    language = Keyword.get(opts, :language, default_locale)
     requested_by = Keyword.get(opts, :requested_by)
     selector = Keyword.get(opts, :selector, %{})
 
