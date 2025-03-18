@@ -485,4 +485,28 @@ defmodule TdAi.Completion do
   def change_provider(%Provider{} = provider, attrs \\ %{}) do
     Provider.changeset(provider, attrs)
   end
+
+  alias TdAi.Completion.Translation
+
+  def list_translations do
+    Repo.all(Translation)
+  end
+
+  def get_translation!(id), do: Repo.get!(Translation, id)
+
+  def create_translation(attrs \\ %{}) do
+    %Translation{}
+    |> Translation.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def update_translation(%Translation{} = translation, attrs) do
+    translation
+    |> Translation.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_translation(%Translation{} = translation) do
+    Repo.delete(translation)
+  end
 end

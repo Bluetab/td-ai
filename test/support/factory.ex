@@ -11,6 +11,7 @@ defmodule TdAi.Factory do
   alias TdAi.Completion.ProviderProperties
   alias TdAi.Completion.ResourceMapping
   alias TdAi.Completion.Suggestion
+  alias TdAi.Completion.Translation
   alias TdAi.Indices.Index
   alias TdAi.Predictions.Prediction
 
@@ -85,9 +86,22 @@ defmodule TdAi.Factory do
       resource_id: sequence(:sugestion_resource_id, & &1),
       generated_prompt: sequence(:generated_prompt, &"Prompt#{&1}"),
       request_time: 42,
-      requested_by: 42,
+      requested_by: sequence(:user_id, & &1),
       prompt: build(:prompt),
       resource_mapping: build(:resource_mapping),
+      status: "ok"
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def translation_factory(attrs \\ %{}) do
+    %Translation{
+      response: %{},
+      resource_id: sequence(:sugestion_resource_id, & &1),
+      generated_prompt: sequence(:generated_prompt, &"Prompt#{&1}"),
+      request_time: 42,
+      requested_by: sequence(:user_id, & &1),
+      prompt: build(:prompt),
       status: "ok"
     }
     |> merge_attributes(attrs)

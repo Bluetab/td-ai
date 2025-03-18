@@ -1,8 +1,14 @@
 # Changelog
 
+## [7.3.0] 2025-03-18
+
+### Added
+
+- [TD-7129] Add Translation using AI providers
+
 ## [7.2.0] 2025-02-25
 
-### Changed
+### Added
 
 - [TD-7049] Add gemini provider
 
