@@ -5,6 +5,7 @@ defmodule TdAi.ProviderClients.Gemini do
 
   @behaviour TdAi.ProviderClient
 
+  import TdAi.ProviderClient, only: [get_proxy_opt: 1]
   alias TdAi.Completion.Messages
 
   @impl true
@@ -45,8 +46,11 @@ defmodule TdAi.ProviderClients.Gemini do
     url =
       "https://generativelanguage.googleapis.com/v1beta/models/#{model}:generateContent?key=#{api_key}"
 
+    connect_option =
+      get_proxy_opt(Application.get_env(:td_ai, :proxy_ai_provider))
+
     url
-    |> Req.post!(headers: headers, body: body)
+    |> Req.post!(headers: headers, body: body, connect_options: connect_option)
     |> case do
       %{status: 200, body: %{"candidates" => [%{"content" => %{"parts" => [%{"text" => text}]}}]}} ->
         {:ok, text}

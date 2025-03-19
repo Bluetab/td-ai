@@ -25,3 +25,21 @@ docker build --build-arg APP_VERSION=0.1.0 .
 
 - `VAULT_TOKEN` Token for Vault connection
 - `VAULT_SECRETS_PATH` Prefix path for vault secrets
+
+## AI Provider Proxy Environment Variables
+
+To configure the proxy settings for the AI providers (Gemini and Azure OpenAI), you can set the following environment variables:
+
+- `AI_PROVIDER_PROXY_ADDRESS`: The address of the proxy server.
+- `AI_PROVIDER_PROXY_SCHEMA`: The schema to use for the proxy connection (default is "http"). This value will be converted to an atom.
+- `AI_PROVIDER_PROXY_PORT`: The port number for the proxy server.
+- `AI_PROVIDER_PROXY_OPTIONS`: Additional options for the proxy configuration.
+
+Example configuration in your environment:
+
+```sh
+export AI_PROVIDER_PROXY_ADDRESS="proxy.example.com"
+export AI_PROVIDER_PROXY_SCHEMA="https"
+export AI_PROVIDER_PROXY_PORT="8080"
+export AI_PROVIDER_PROXY_OPTIONS="some_options"
+```

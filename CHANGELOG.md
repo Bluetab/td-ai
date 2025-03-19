@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.3.1] 2025-03-19
+
+### Added
+
+- [TD-7181] Support for proxy options in Azure OpenAI and Gemini providers
+
 ## [7.3.0] 2025-03-18
 
 ### Added
