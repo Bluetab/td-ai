@@ -60,4 +60,10 @@ if config_env() == :prod do
   config :td_ai, TdAi.Vault,
     token: System.fetch_env!("VAULT_TOKEN"),
     secrets_path: System.fetch_env!("VAULT_SECRETS_PATH")
+
+  config :td_ai, :proxy_ai_provider,
+    address: System.get_env("AI_PROVIDER_PROXY_ADDRESS"),
+    schema: System.get_env("AI_PROVIDER_PROXY_SCHEMA", "http") |> String.to_atom(),
+    port: System.get_env("AI_PROVIDER_PROXY_PORT", "3128") |> String.to_integer(),
+    options: System.get_env("AI_PROVIDER_PROXY_OPTIONS")
 end
