@@ -19,6 +19,26 @@ defmodule TdAi.ProviderClient do
           messages
         )
 
+  def get_proxy_opt(nil), do: []
+
+  def get_proxy_opt(proxy_opt) do
+    case Keyword.get(proxy_opt, :address) do
+      nil ->
+        []
+
+      address ->
+        options =
+          case Keyword.get(proxy_opt, :options) do
+            nil -> []
+            options -> options
+          end
+
+        [
+          proxy: {proxy_opt[:schema], address, proxy_opt[:port], options}
+        ]
+    end
+  end
+
   defp impl("azure_openai"), do: TdAi.ProviderClients.AzureOpenai
   defp impl("bedrock_claude"), do: TdAi.ProviderClients.BedrockClaude
   defp impl("openai"), do: TdAi.ProviderClients.Openai
