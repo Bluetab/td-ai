@@ -103,4 +103,20 @@ defmodule TdAi.Indices do
   def change_index(%Index{} = index, attrs \\ %{}) do
     Index.changeset(index, attrs)
   end
+
+  def enable(%Index{enabled_at: nil} = index) do
+    index
+    |> Index.changeset(%{enabled_at: DateTime.utc_now()})
+    |> Repo.update()
+  end
+
+  def enable(index), do: {:ok, index}
+
+  def disable(%Index{enabled_at: enabled_at} = index) when not is_nil(enabled_at) do
+    index
+    |> Index.changeset(%{enabled_at: nil})
+    |> Repo.update()
+  end
+
+  def disable(index), do: {:ok, index}
 end

@@ -60,4 +60,24 @@ defmodule TdAiWeb.IndexController do
       send_resp(conn, :no_content, "")
     end
   end
+
+  def enable(conn, %{"id" => id}) do
+    claims = conn.assigns[:current_resource]
+    index = Indices.get_index!(id)
+
+    with :ok <- Bodyguard.permit(Indices, :update, claims),
+         {:ok, updated} <- Indices.enable(index) do
+      render(conn, :show, index: updated)
+    end
+  end
+
+  def disable(conn, %{"id" => id}) do
+    claims = conn.assigns[:current_resource]
+    index = Indices.get_index!(id)
+
+    with :ok <- Bodyguard.permit(Indices, :update, claims),
+         {:ok, updated} <- Indices.disable(index) do
+      render(conn, "show.json", index: updated)
+    end
+  end
 end

@@ -81,4 +81,41 @@ defmodule TdAi.IndicesTest do
       assert %Ecto.Changeset{} = Indices.change_index(index)
     end
   end
+
+  describe "enable/1" do
+    test "sets enabled_at to current datetime" do
+      index = insert(:index, enabled_at: nil)
+
+      assert index.enabled_at == nil
+
+      {:ok, enabled_index} = Indices.enable(index)
+
+      assert enabled_index.enabled_at != nil
+      assert %DateTime{} = enabled_index.enabled_at
+    end
+
+    test "doesn't set enabled_at to current datetime" do
+      index = insert(:index, enabled_at: DateTime.add(DateTime.utc_now(), -1, :day))
+      {:ok, noop_index} = Indices.enable(index)
+
+      assert noop_index.enabled_at == index.enabled_at
+    end
+  end
+
+  describe "disable/1" do
+    test "sets enabled_at to nil" do
+      # Insert an index already enabled
+      index = insert(:index, enabled_at: DateTime.utc_now())
+
+      {:ok, disabled_index} = Indices.disable(index)
+      assert disabled_index.enabled_at == nil
+    end
+
+    test "doesn't set enabled_at to nil when already disabled" do
+      index = insert(:index, enabled_at: nil)
+
+      {:ok, disabled_index} = Indices.disable(index)
+      assert disabled_index.enabled_at == nil
+    end
+  end
 end
