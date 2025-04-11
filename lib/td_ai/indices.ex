@@ -15,12 +15,18 @@ defmodule TdAi.Indices do
 
   ## Examples
 
-      iex> list_indices()
+      iex> list_indices(%{enabled: true})
       [%Index{}, ...]
 
   """
-  def list_indices do
-    Repo.all(Index)
+  def list_indices(args \\ %{}) do
+    args
+    |> Enum.reduce(Index, fn
+      {:enabled, true}, q -> where(q, [i], not is_nil(i.enabled_at))
+      {:enabled, false}, q -> where(q, [i], is_nil(i.enabled_at))
+      _, q -> q
+    end)
+    |> Repo.all()
   end
 
   @doc """

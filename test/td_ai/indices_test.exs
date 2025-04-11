@@ -118,4 +118,19 @@ defmodule TdAi.IndicesTest do
       assert disabled_index.enabled_at == nil
     end
   end
+
+  describe "list_indices/1" do
+    test "lists enabled indices" do
+      enabled = insert(:index, enabled_at: DateTime.utc_now())
+      disabled = insert(:index, enabled_at: nil)
+      assert [index] = Indices.list_indices(enabled: true)
+      assert index == enabled
+
+      assert [index] = Indices.list_indices(enabled: false)
+      assert index == disabled
+
+      assert indices = Indices.list_indices()
+      assert Enum.count(indices) == 2
+    end
+  end
 end
