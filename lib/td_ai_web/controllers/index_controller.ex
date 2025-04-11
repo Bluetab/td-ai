@@ -61,7 +61,7 @@ defmodule TdAiWeb.IndexController do
     end
   end
 
-  def enable(conn, %{"id" => id}) do
+  def enable(conn, %{"index_id" => id}) do
     claims = conn.assigns[:current_resource]
     index = Indices.get_index!(id)
 
@@ -71,7 +71,7 @@ defmodule TdAiWeb.IndexController do
     end
   end
 
-  def disable(conn, %{"id" => id}) do
+  def disable(conn, %{"index_id" => id}) do
     claims = conn.assigns[:current_resource]
     index = Indices.get_index!(id)
 

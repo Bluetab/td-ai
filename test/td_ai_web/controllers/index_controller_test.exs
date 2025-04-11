@@ -2,6 +2,7 @@ defmodule TdAiWeb.IndexControllerTest do
   use TdAiWeb.ConnCase
 
   alias TdAi.Indices.Index
+  alias TdAi.Repo
 
   @create_attrs %{
     collection_name: "some collection_name",
@@ -119,6 +120,37 @@ defmodule TdAiWeb.IndexControllerTest do
       conn = delete(conn, ~p"/api/indices/#{index}")
 
       assert response(conn, 403)
+    end
+  end
+
+  describe "POST /indices/:id/enable" do
+    @tag authentication: [role: "admin"]
+    test "enables the index", %{conn: conn} do
+      %{id: index_id} = insert(:index, enabled_at: nil)
+
+      conn = post(conn, ~p"/api/indices/#{index_id}/enable")
+
+      assert %{"data" => %{"id" => ^index_id, "enabled_at" => enabled_at}} =
+               json_response(conn, 200)
+
+      updated_index = Repo.get!(Index, index_id)
+      assert updated_index.enabled_at
+      assert enabled_at
+    end
+  end
+
+  describe "POST /indices/:id/disable" do
+    @tag authentication: [role: "admin"]
+    test "enables the index", %{conn: conn} do
+      %{id: index_id} = insert(:index, enabled_at: DateTime.utc_now())
+
+      conn = post(conn, ~p"/api/indices/#{index_id}/disable")
+
+      assert %{"data" => %{"id" => ^index_id, "enabled_at" => nil}} =
+               json_response(conn, 200)
+
+      updated_index = Repo.get!(Index, index_id)
+      refute updated_index.enabled_at
     end
   end
 
