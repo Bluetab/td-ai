@@ -125,4 +125,12 @@ defmodule TdAi.Indices do
   end
 
   def disable(index), do: {:ok, index}
+
+  def first_enabled do
+    Index
+    |> where([i], not is_nil(i.enabled_at))
+    |> order_by(asc: :enabled_at)
+    |> limit(1)
+    |> Repo.one()
+  end
 end
