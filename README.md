@@ -26,6 +26,15 @@ docker build --build-arg APP_VERSION=0.1.0 .
 - `VAULT_TOKEN` Token for Vault connection
 - `VAULT_SECRETS_PATH` Prefix path for vault secrets
 
+### SSL conection
+
+- DB_SSL: boolean value, to enable TSL config, by default is false.
+- DB_SSL_CACERTFILE: path of the certification authority cert file "/path/to/ca.crt".
+- DB_SSL_VERSION: available versions are tlsv1.2, tlsv1.3 by default is tlsv1.2.
+- DB_SSL_CLIENT_CERT: Path to the client SSL certificate file.
+- DB_SSL_CLIENT_KEY: Path to the client SSL private key file.
+- DB_SSL_VERIFY: This option specifies whether certificates are to be verified.
+
 ## AI Provider Proxy Environment Variables
 
 To configure the proxy settings for the AI providers (Gemini and Azure OpenAI), you can set the following environment variables:
