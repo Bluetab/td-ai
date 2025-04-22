@@ -1,6 +1,9 @@
 defmodule TdAi.Embeddings do
-  alias TdAi.Indices
+  @moduledoc """
+  Module managing embeddings
+  """
   alias TdAi.Embeddings.Server
+  alias TdAi.Indices
 
   def load_serving(model_name, opts \\ []) do
     model_opts = opts[:model] || []
@@ -12,10 +15,19 @@ defmodule TdAi.Embeddings do
     Bumblebee.Text.text_embedding(model, tokenizer, embedding_opts)
   end
 
+  def all(texts) do
+    Enum.into(Server.get_servings(), %{}, fn {collection_name, serving} ->
+      {collection_name, vector_for_serving(serving, texts)}
+    end)
+  end
+
   def generate_vector(text, collection_name \\ nil)
 
   def generate_vector(text, collection_name) when is_binary(collection_name) do
-    Server.generate_vector(text, collection_name)
+    case Server.get_serving(collection_name) do
+      %Nx.Serving{} = serving -> vector_for_serving(serving, text)
+      nil -> :noop
+    end
   end
 
   def generate_vector(text, nil) do

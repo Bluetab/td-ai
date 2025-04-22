@@ -1,8 +1,12 @@
 defmodule TdAi.Embeddings.Server do
   use GenServer
 
-  alias TdAi.Indices
+  @moduledoc """
+  Server storing servings ffrom enabled indices
+  """
+
   alias TdAi.Embeddings
+  alias TdAi.Indices
 
   @model_dir Application.app_dir(:td_ai, "priv/models")
   @servings %{}
@@ -19,8 +23,8 @@ defmodule TdAi.Embeddings.Server do
     GenServer.call(__MODULE__, :get_servings)
   end
 
-  def generate_vector(text, serving_name) do
-    GenServer.call(__MODULE__, {:generate_vector, text, serving_name})
+  def get_serving(collection_name) do
+    GenServer.call(__MODULE__, {:get_serving, collection_name})
   end
 
   def handle_continue(:load_servings, _state) do
@@ -36,15 +40,8 @@ defmodule TdAi.Embeddings.Server do
     {:reply, state, state}
   end
 
-  def handle_call({:generate_vector, text, serving_name}, _from, state) do
-    case Map.get(state, serving_name) do
-      %Nx.Serving{} = serving ->
-        embedding = Embeddings.vector_for_serving(serving, text)
-        {:reply, embedding, state}
-
-      nil ->
-        {:reply, :noop, state}
-    end
+  def handle_call({:get_serving, collection_name}, _from, state) do
+    {:reply, Map.get(state, collection_name), state}
   end
 
   defp load_from_index(%{collection_name: name, embedding: embedding}) do
