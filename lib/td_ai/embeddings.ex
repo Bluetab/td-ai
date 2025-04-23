@@ -25,7 +25,7 @@ defmodule TdAi.Embeddings do
 
   def generate_vector(text, collection_name) when is_binary(collection_name) do
     case Server.get_serving(collection_name) do
-      %Nx.Serving{} = serving -> vector_for_serving(serving, text)
+      %Nx.Serving{} = serving -> {collection_name, vector_for_serving(serving, text)}
       nil -> :noop
     end
   end
