@@ -51,7 +51,7 @@ defmodule TdAi.Embeddings.Server do
         tokenizer: [offline: true, cache_dir: @model_dir],
         embedding: [
           defn_options: [compiler: EXLA],
-          compile: [batch_size: 32, sequence_length: 64]
+          compile: [batch_size: 32, sequence_length: [128, 256, 512]]
         ]
       )
 
