@@ -25,7 +25,7 @@ defmodule TdAi.Embeddings do
 
   def generate_vector(text, collection_name) when is_binary(collection_name) do
     case Server.get_serving(collection_name) do
-      %Nx.Serving{} = serving -> {collection_name, vector_for_serving(serving, text)}
+      %{} = serving -> {collection_name, vector_for_serving(serving, text)}
       nil -> :noop
     end
   end
@@ -37,13 +37,13 @@ defmodule TdAi.Embeddings do
     end
   end
 
-  def vector_for_serving(%Nx.Serving{} = serving, texts) when is_list(texts) do
+  def vector_for_serving(%{multiple: %Nx.Serving{} = serving}, texts) when is_list(texts) do
     serving
     |> Nx.Serving.run(texts)
     |> Enum.map(fn %{embedding: tensor} -> Nx.to_flat_list(tensor) end)
   end
 
-  def vector_for_serving(%Nx.Serving{} = serving, text) do
+  def vector_for_serving(%{single: %Nx.Serving{} = serving}, text) do
     %{embedding: embedding} = Nx.Serving.run(serving, text)
     Nx.to_flat_list(embedding)
   end

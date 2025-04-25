@@ -9,6 +9,16 @@ defmodule TdAi.Embeddings.Server do
   alias TdAi.Indices
 
   @model_dir Application.app_dir(:td_ai, "priv/models")
+  @embedding_configs [
+    single: [
+      defn_options: [compiler: EXLA],
+      compile: [batch_size: 1, sequence_length: [128, 256, 512]]
+    ],
+    multiple: [
+      defn_options: [compiler: EXLA],
+      compile: [batch_size: 128, sequence_length: [128, 256, 512]]
+    ]
+  ]
   @servings %{}
 
   def start_link(_) do
@@ -45,16 +55,18 @@ defmodule TdAi.Embeddings.Server do
   end
 
   defp load_from_index(%{collection_name: name, embedding: embedding}) do
-    serving =
-      Embeddings.load_serving(embedding,
-        model: [offline: true, cache_dir: @model_dir],
-        tokenizer: [offline: true, cache_dir: @model_dir],
-        embedding: [
-          defn_options: [compiler: EXLA],
-          compile: [batch_size: 128, sequence_length: [128, 256, 512]]
-        ]
-      )
+    servings =
+      Enum.reduce(@embedding_configs, %{}, fn {key, value}, acc ->
+        serving =
+          Embeddings.load_serving(embedding,
+            model: [offline: true, cache_dir: @model_dir],
+            tokenizer: [offline: true, cache_dir: @model_dir],
+            embedding: value
+          )
 
-    {name, serving}
+        Map.put(acc, key, serving)
+      end)
+
+    {name, servings}
   end
 end
