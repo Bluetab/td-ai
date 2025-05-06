@@ -33,10 +33,7 @@ defmodule TdAi.Indices.Index do
     ])
     |> validate_required([
       :collection_name,
-      :embedding,
-      :mapping,
-      :metric_type,
-      :index_type
+      :embedding
     ])
     |> unique_constraint(:collection_name)
   end
