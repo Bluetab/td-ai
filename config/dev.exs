@@ -77,5 +77,3 @@ config :td_ai, TdAi.Vault,
   secrets_path: "secret/data/ai/"
 
 config :vaultex, vault_addr: "http://vault:8200"
-
-config :td_ai, :model_path, System.get_env("MODEL_PATH", "priv/models")
