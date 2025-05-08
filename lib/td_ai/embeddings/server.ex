@@ -1,14 +1,16 @@
 defmodule TdAi.Embeddings.Server do
-  use GenServer
+  # the child process is restarted only if it terminates abnormally
+  use GenServer, restart: :transient
 
   @moduledoc """
   Server storing servings ffrom enabled indices
   """
 
+  require Logger
+
   alias TdAi.Embeddings
   alias TdAi.Indices
 
-  @model_dir Application.app_dir(:td_ai, "priv/models")
   @embedding_configs [
     single: [
       defn_options: [compiler: EXLA],
@@ -33,17 +35,16 @@ defmodule TdAi.Embeddings.Server do
     GenServer.call(__MODULE__, :get_servings)
   end
 
+  def refresh do
+    GenServer.cast(__MODULE__, :refresh)
+  end
+
   def get_serving(collection_name) do
     GenServer.call(__MODULE__, {:get_serving, collection_name})
   end
 
-  def handle_continue(:load_servings, _state) do
-    new_state =
-      [enabled: true]
-      |> Indices.list_indices()
-      |> Enum.into(%{}, &load_from_index/1)
-
-    {:noreply, new_state}
+  def handle_continue(:load_servings, state) do
+    handle_load_servings(state)
   end
 
   def handle_call(:get_servings, _from, state) do
@@ -54,19 +55,46 @@ defmodule TdAi.Embeddings.Server do
     {:reply, Map.get(state, collection_name), state}
   end
 
+  def handle_cast(:refresh, state) do
+    handle_load_servings(state)
+  end
+
+  defp handle_load_servings(state) do
+    [enabled: true]
+    |> Indices.list_indices()
+    |> Enum.map(&load_from_index/1)
+    |> Enum.split_with(&(elem(&1, 0) == :error))
+    |> then(fn
+      {[{:error, error_message}], _servings} ->
+        Logger.error(error_message)
+        {:stop, {:shutdown, error_message}, state}
+
+      {[], [_ | _] = servings} ->
+        {:noreply, Map.new(servings)}
+
+      {[], []} ->
+        {:noreply, @servings}
+    end)
+  end
+
   defp load_from_index(%{collection_name: name, embedding: embedding}) do
-    servings =
-      Enum.reduce(@embedding_configs, %{}, fn {key, value}, acc ->
-        serving =
-          Embeddings.load_serving(embedding,
-            model: [offline: true, cache_dir: @model_dir],
-            tokenizer: [offline: true, cache_dir: @model_dir],
-            embedding: value
-          )
+    @embedding_configs
+    |> Enum.reduce_while(%{}, fn config, acc ->
+      reduce_serving_for_config(config, acc, embedding)
+    end)
+    |> then(fn
+      %{} = servings -> {name, servings}
+      {:error, _error} = error -> error
+    end)
+  end
 
-        Map.put(acc, key, serving)
-      end)
+  defp reduce_serving_for_config({config_key, config}, servings, embedding) do
+    case Embeddings.load_local_serving(embedding, embedding: config) do
+      %Nx.Serving{} = serving ->
+        {:cont, Map.put(servings, config_key, serving)}
 
-    {name, servings}
+      {:error, _error} = error ->
+        {:halt, error}
+    end
   end
 end

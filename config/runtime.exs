@@ -66,4 +66,6 @@ if config_env() == :prod do
     schema: System.get_env("AI_PROVIDER_PROXY_SCHEMA", "http") |> String.to_atom(),
     port: System.get_env("AI_PROVIDER_PROXY_PORT", "3128") |> String.to_integer(),
     options: System.get_env("AI_PROVIDER_PROXY_OPTIONS")
+
+  config :td_ai, :model_path, System.get_env("MODEL_PATH", "priv/models")
 end

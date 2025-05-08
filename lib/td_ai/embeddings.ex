@@ -5,14 +5,16 @@ defmodule TdAi.Embeddings do
   alias TdAi.Embeddings.Server
   alias TdAi.Indices
 
-  def load_serving(model_name, opts \\ []) do
-    model_opts = opts[:model] || []
-    tokenizer_opts = opts[:tokenizer] || []
-    embedding_opts = opts[:embedding] || []
-    {:ok, model} = Bumblebee.load_model({:hf, model_name, model_opts})
-    {:ok, tokenizer} = Bumblebee.load_tokenizer({:hf, model_name, tokenizer_opts})
+  @model_base_path Application.compile_env!(:td_ai, :model_path)
 
-    Bumblebee.Text.text_embedding(model, tokenizer, embedding_opts)
+  def load_local_serving(model_name, opts \\ []) do
+    embedding_opts = opts[:embedding] || []
+    local_path = Path.join(@model_base_path, model_name)
+
+    with {:ok, model} <- Bumblebee.load_model({:local, local_path}),
+         {:ok, tokenizer} <- Bumblebee.load_tokenizer({:local, local_path}) do
+      Bumblebee.Text.text_embedding(model, tokenizer, embedding_opts)
+    end
   end
 
   def all(texts) do
