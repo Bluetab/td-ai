@@ -43,8 +43,12 @@ defmodule TdAi.Embeddings.Server do
     GenServer.call(__MODULE__, {:get_serving, collection_name})
   end
 
-  def handle_continue(:load_servings, state) do
-    handle_load_servings(state)
+  def add_serving(index) do
+    GenServer.cast(__MODULE__, {:add_serving, index})
+  end
+
+  def handle_continue(:load_servings, _state) do
+    {:noreply, handle_load_servings()}
   end
 
   def handle_call(:get_servings, _from, state) do
@@ -55,26 +59,28 @@ defmodule TdAi.Embeddings.Server do
     {:reply, Map.get(state, collection_name), state}
   end
 
-  def handle_cast(:refresh, state) do
-    handle_load_servings(state)
+  def handle_cast(:refresh, _state) do
+    {:noreply, handle_load_servings()}
   end
 
-  defp handle_load_servings(state) do
+  def handle_cast({:add_serving, index}, state) do
+    index
+    |> load_from_index()
+    |> then(fn
+      {:error, _message} ->
+        {:noreply, state}
+
+      {name, serving} ->
+        {:noreply, Map.put(state, name, serving)}
+    end)
+  end
+
+  defp handle_load_servings do
     [enabled: true]
     |> Indices.list_indices()
     |> Enum.map(&load_from_index/1)
-    |> Enum.split_with(&(elem(&1, 0) == :error))
-    |> then(fn
-      {[{:error, error_message}], _servings} ->
-        Logger.error(error_message)
-        {:stop, {:shutdown, error_message}, state}
-
-      {[], [_ | _] = servings} ->
-        {:noreply, Map.new(servings)}
-
-      {[], []} ->
-        {:noreply, @servings}
-    end)
+    |> Enum.reject(&(elem(&1, 0) == :error))
+    |> Map.new()
   end
 
   defp load_from_index(%{collection_name: name, embedding: embedding}) do
@@ -83,8 +89,12 @@ defmodule TdAi.Embeddings.Server do
       reduce_serving_for_config(config, acc, embedding)
     end)
     |> then(fn
-      %{} = servings -> {name, servings}
-      {:error, _error} = error -> error
+      %{} = servings ->
+        {name, servings}
+
+      {:error, message} = error ->
+        Logger.error(message)
+        error
     end)
   end
 

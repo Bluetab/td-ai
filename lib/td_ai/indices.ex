@@ -6,6 +6,7 @@ defmodule TdAi.Indices do
   import Ecto.Query, warn: false
   alias TdAi.Repo
 
+  alias TdAi.Embeddings.Server
   alias TdAi.Indices.Index
 
   defdelegate authorize(action, user, params), to: __MODULE__.Policy
@@ -61,6 +62,13 @@ defmodule TdAi.Indices do
     %Index{}
     |> Index.changeset(attrs)
     |> Repo.insert()
+    |> tap(fn
+      {:ok, %Index{enabled_at: enabled_at} = index} when not is_nil(enabled_at) ->
+        Server.add_serving(index)
+
+      _other ->
+        :noop
+    end)
   end
 
   @doc """
