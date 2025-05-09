@@ -8,8 +8,9 @@ defmodule TdAi.Embeddings.Server do
 
   require Logger
 
-  alias TdAi.Embeddings
   alias TdAi.Indices
+
+  @embeddings Application.compile_env(:td_ai, :embeddings, TdAi.Embeddings)
 
   @embedding_configs [
     single: [
@@ -107,7 +108,7 @@ defmodule TdAi.Embeddings.Server do
   end
 
   defp reduce_serving_for_config({config_key, config}, servings, embedding) do
-    case Embeddings.load_local_serving(embedding, embedding: config) do
+    case @embeddings.load_local_serving(embedding, embedding: config) do
       %Nx.Serving{} = serving ->
         {:cont, Map.put(servings, config_key, serving)}
 

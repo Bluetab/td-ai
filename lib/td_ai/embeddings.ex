@@ -1,7 +1,22 @@
+defmodule TdAi.Embeddings.Behaviour do
+  @moduledoc """
+  Embeddings behaviour
+  """
+  @callback load_local_serving(model_name :: binary()) :: Nx.Serving.t() | {:error, term()}
+  @callback load_local_serving(model_name :: binary(), opts :: Keyword.t()) ::
+              Nx.Serving.t() | {:error, term()}
+  @callback all([binary()]) :: %{binary() => [float()]}
+  @callback generate_vector(text :: binary()) :: {binary(), [float()]} | :noop
+  @callback generate_vector(text :: binary(), collection_name :: binary() | nil) ::
+              {binary(), [float()]} | :noop
+end
+
 defmodule TdAi.Embeddings do
   @moduledoc """
   Module managing embeddings
   """
+  @behaviour TdAi.Embeddings.Behaviour
+
   alias TdAi.Embeddings.Server
   alias TdAi.Indices
 
@@ -39,13 +54,13 @@ defmodule TdAi.Embeddings do
     end
   end
 
-  def vector_for_serving(%{multiple: %Nx.Serving{} = serving}, texts) when is_list(texts) do
+  defp vector_for_serving(%{multiple: %Nx.Serving{} = serving}, texts) when is_list(texts) do
     serving
     |> Nx.Serving.run(texts)
     |> Enum.map(fn %{embedding: tensor} -> Nx.to_flat_list(tensor) end)
   end
 
-  def vector_for_serving(%{single: %Nx.Serving{} = serving}, text) do
+  defp vector_for_serving(%{single: %Nx.Serving{} = serving}, text) do
     %{embedding: embedding} = Nx.Serving.run(serving, text)
     Nx.to_flat_list(embedding)
   end
