@@ -62,13 +62,7 @@ defmodule TdAi.Indices do
     %Index{}
     |> Index.changeset(attrs)
     |> Repo.insert()
-    |> tap(fn
-      {:ok, %Index{enabled_at: enabled_at} = index} when not is_nil(enabled_at) ->
-        Server.add_serving(index)
-
-      _other ->
-        :noop
-    end)
+    |> tap(&add_serving/1)
   end
 
   @doc """
@@ -87,6 +81,7 @@ defmodule TdAi.Indices do
     index
     |> Index.changeset(attrs)
     |> Repo.update()
+    |> tap(&add_serving/1)
   end
 
   @doc """
@@ -102,7 +97,9 @@ defmodule TdAi.Indices do
 
   """
   def delete_index(%Index{} = index) do
-    Repo.delete(index)
+    index
+    |> Repo.delete()
+    |> tap(&remove_serving/1)
   end
 
   @doc """
@@ -122,6 +119,7 @@ defmodule TdAi.Indices do
     index
     |> Index.changeset(%{enabled_at: DateTime.utc_now()})
     |> Repo.update()
+    |> tap(&add_serving/1)
   end
 
   def enable(index), do: {:ok, index}
@@ -130,6 +128,7 @@ defmodule TdAi.Indices do
     index
     |> Index.changeset(%{enabled_at: nil})
     |> Repo.update()
+    |> tap(&remove_serving/1)
   end
 
   def disable(index), do: {:ok, index}
@@ -141,4 +140,16 @@ defmodule TdAi.Indices do
     |> limit(1)
     |> Repo.one()
   end
+
+  defp add_serving({:ok, %Index{enabled_at: enabled_at} = index}) when not is_nil(enabled_at) do
+    Server.add_serving(index)
+  end
+
+  defp add_serving(_other), do: :noop
+
+  defp remove_serving({:ok, %Index{enabled_at: nil} = index}) do
+    Server.remove_serving(index)
+  end
+
+  defp remove_serving(_other), do: :noop
 end

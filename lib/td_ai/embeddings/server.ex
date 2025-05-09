@@ -47,6 +47,10 @@ defmodule TdAi.Embeddings.Server do
     GenServer.cast(__MODULE__, {:add_serving, index})
   end
 
+  def remove_serving(index) do
+    GenServer.cast(__MODULE__, {:remove_serving, index})
+  end
+
   def handle_continue(:load_servings, _state) do
     {:noreply, handle_load_servings()}
   end
@@ -73,6 +77,10 @@ defmodule TdAi.Embeddings.Server do
       {name, serving} ->
         {:noreply, Map.put(state, name, serving)}
     end)
+  end
+
+  def handle_cast({:remove_serving, %{collection_name: collection_name}}, state) do
+    {:noreply, Map.delete(state, collection_name)}
   end
 
   defp handle_load_servings do
