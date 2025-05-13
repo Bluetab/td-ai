@@ -141,6 +141,12 @@ defmodule TdAi.Indices do
     |> Repo.one()
   end
 
+  def exists_enabled? do
+    Index
+    |> where([i], not is_nil(i.enabled_at))
+    |> Repo.exists?()
+  end
+
   defp add_serving({:ok, %Index{enabled_at: enabled_at} = index}) when not is_nil(enabled_at) do
     Server.add_serving(index)
   end

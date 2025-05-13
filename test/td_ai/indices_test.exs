@@ -133,4 +133,14 @@ defmodule TdAi.IndicesTest do
       assert Enum.count(indices) == 2
     end
   end
+
+  describe "exists_enabled?" do
+    test "checks if there are enabled indices" do
+      insert(:index, enabled_at: nil)
+      refute Indices.exists_enabled?()
+
+      insert(:index, enabled_at: DateTime.utc_now())
+      assert Indices.exists_enabled?()
+    end
+  end
 end
