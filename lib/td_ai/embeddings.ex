@@ -55,13 +55,36 @@ defmodule TdAi.Embeddings do
   end
 
   defp vector_for_serving(%{multiple: %Nx.Serving{} = serving}, texts) when is_list(texts) do
+    texts = normalize(texts)
+
     serving
     |> Nx.Serving.run(texts)
     |> Enum.map(fn %{embedding: tensor} -> Nx.to_flat_list(tensor) end)
   end
 
   defp vector_for_serving(%{single: %Nx.Serving{} = serving}, text) do
+    text = normalize(text)
     %{embedding: embedding} = Nx.Serving.run(serving, text)
     Nx.to_flat_list(embedding)
+  end
+
+  defp normalize(texts) when is_list(texts) do
+    Enum.map(texts, &normalize/1)
+  end
+
+  defp normalize(text) when is_binary(text) do
+    text
+    |> split_snake_case()
+    |> split_camel_case()
+    |> String.downcase()
+    |> String.trim()
+  end
+
+  defp split_snake_case(text) do
+    String.replace(text, "_", " ")
+  end
+
+  defp split_camel_case(text) do
+    Regex.replace(~r/([a-z])([A-Z])/, text, "\\1 \\2")
   end
 end

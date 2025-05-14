@@ -15,11 +15,13 @@ defmodule TdAi.Embeddings.Server do
   @embedding_configs [
     single: [
       defn_options: [compiler: EXLA],
-      compile: [batch_size: 1, sequence_length: [128, 256, 512]]
+      compile: [batch_size: 1, sequence_length: [128, 256, 512]],
+      embedding_processor: :l2_norm
     ],
     multiple: [
       defn_options: [compiler: EXLA],
-      compile: [batch_size: 128, sequence_length: [128, 256, 512]]
+      compile: [batch_size: 128, sequence_length: [128, 256, 512]],
+      embedding_processor: :l2_norm
     ]
   ]
   @servings %{}
