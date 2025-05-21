@@ -28,7 +28,11 @@ defmodule TdAiWeb.Router do
 
     post "/actions/me", ActionController, :actions_by_user
 
-    resources("/indices", IndexController, except: [:new, :edit])
+    resources("/indices", IndexController, except: [:new, :edit]) do
+      post "/enable", IndexController, :enable
+      post "/disable", IndexController, :disable
+    end
+
     resources("/predictions", PredictionController, except: [:new, :edit])
 
     resources "/resource_mappings", ResourceMappingController, except: [:new, :edit]

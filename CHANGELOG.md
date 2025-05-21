@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- [TD-6219]:
+  - Model to interact with text embeddings
+  - Enable and disable indices
+
 ## [7.5.0] 2025-04-30
 
 ### Fixed

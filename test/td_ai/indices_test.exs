@@ -81,4 +81,66 @@ defmodule TdAi.IndicesTest do
       assert %Ecto.Changeset{} = Indices.change_index(index)
     end
   end
+
+  describe "enable/1" do
+    test "sets enabled_at to current datetime" do
+      index = insert(:index, enabled_at: nil)
+
+      assert index.enabled_at == nil
+
+      {:ok, enabled_index} = Indices.enable(index)
+
+      assert enabled_index.enabled_at != nil
+      assert %DateTime{} = enabled_index.enabled_at
+    end
+
+    test "doesn't set enabled_at to current datetime" do
+      index = insert(:index, enabled_at: DateTime.add(DateTime.utc_now(), -1, :day))
+      {:ok, noop_index} = Indices.enable(index)
+
+      assert noop_index.enabled_at == index.enabled_at
+    end
+  end
+
+  describe "disable/1" do
+    test "sets enabled_at to nil" do
+      # Insert an index already enabled
+      index = insert(:index, enabled_at: DateTime.utc_now())
+
+      {:ok, disabled_index} = Indices.disable(index)
+      assert disabled_index.enabled_at == nil
+    end
+
+    test "doesn't set enabled_at to nil when already disabled" do
+      index = insert(:index, enabled_at: nil)
+
+      {:ok, disabled_index} = Indices.disable(index)
+      assert disabled_index.enabled_at == nil
+    end
+  end
+
+  describe "list_indices/1" do
+    test "lists enabled indices" do
+      enabled = insert(:index, enabled_at: DateTime.utc_now())
+      disabled = insert(:index, enabled_at: nil)
+      assert [index] = Indices.list_indices(enabled: true)
+      assert index == enabled
+
+      assert [index] = Indices.list_indices(enabled: false)
+      assert index == disabled
+
+      assert indices = Indices.list_indices()
+      assert Enum.count(indices) == 2
+    end
+  end
+
+  describe "exists_enabled?" do
+    test "checks if there are enabled indices" do
+      insert(:index, enabled_at: nil)
+      refute Indices.exists_enabled?()
+
+      insert(:index, enabled_at: DateTime.utc_now())
+      assert Indices.exists_enabled?()
+    end
+  end
 end

@@ -22,5 +22,6 @@ RUN apt-get update && \
 
 USER app
 
-ENV APP_NAME ${APP_NAME}
+ENV APP_NAME=${APP_NAME}
+
 ENTRYPOINT ["/bin/bash", "-c", "bin/start.sh"]
