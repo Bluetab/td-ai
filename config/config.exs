@@ -46,7 +46,7 @@ config :phoenix, :json_library, Jason
 
 config :td_ai, :gen_ai_module, TdAi.GenAi
 
-config :td_ai, :model_path, System.get_env("MODEL_PATH", "priv/models")
+config :td_ai, :model_path, "priv/models"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

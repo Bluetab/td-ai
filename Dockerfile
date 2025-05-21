@@ -23,8 +23,5 @@ RUN apt-get update && \
 USER app
 
 ENV APP_NAME=${APP_NAME}
-ENV MODEL_PATH=/models
-
-VOLUME ["/models"]
 
 ENTRYPOINT ["/bin/bash", "-c", "bin/start.sh"]
