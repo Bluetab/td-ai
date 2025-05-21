@@ -20,11 +20,9 @@ defmodule TdAi.Embeddings do
   alias TdAi.Embeddings.Server
   alias TdAi.Indices
 
-  @model_base_path Application.compile_env!(:td_ai, :model_path)
-
   def load_local_serving(model_name, opts \\ []) do
     embedding_opts = opts[:embedding] || []
-    local_path = Path.join(@model_base_path, model_name)
+    local_path = :td_ai |> Application.get_env(:model_path) |> Path.join(model_name)
 
     with {:ok, model} <- Bumblebee.load_model({:local, local_path}),
          {:ok, tokenizer} <- Bumblebee.load_tokenizer({:local, local_path}) do
