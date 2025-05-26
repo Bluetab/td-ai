@@ -6,6 +6,7 @@ defmodule TdAi.Indices do
   import Ecto.Query, warn: false
   alias TdAi.Repo
 
+  alias TdAi.Embeddings.Server
   alias TdAi.Indices.Index
 
   defdelegate authorize(action, user, params), to: __MODULE__.Policy
@@ -15,12 +16,18 @@ defmodule TdAi.Indices do
 
   ## Examples
 
-      iex> list_indices()
+      iex> list_indices(%{enabled: true})
       [%Index{}, ...]
 
   """
-  def list_indices do
-    Repo.all(Index)
+  def list_indices(args \\ %{}) do
+    args
+    |> Enum.reduce(Index, fn
+      {:enabled, true}, q -> where(q, [i], not is_nil(i.enabled_at))
+      {:enabled, false}, q -> where(q, [i], is_nil(i.enabled_at))
+      _, q -> q
+    end)
+    |> Repo.all()
   end
 
   @doc """
@@ -55,6 +62,7 @@ defmodule TdAi.Indices do
     %Index{}
     |> Index.changeset(attrs)
     |> Repo.insert()
+    |> tap(&add_serving/1)
   end
 
   @doc """
@@ -73,6 +81,7 @@ defmodule TdAi.Indices do
     index
     |> Index.changeset(attrs)
     |> Repo.update()
+    |> tap(&add_serving/1)
   end
 
   @doc """
@@ -88,7 +97,9 @@ defmodule TdAi.Indices do
 
   """
   def delete_index(%Index{} = index) do
-    Repo.delete(index)
+    index
+    |> Repo.delete()
+    |> tap(&remove_serving/1)
   end
 
   @doc """
@@ -103,4 +114,48 @@ defmodule TdAi.Indices do
   def change_index(%Index{} = index, attrs \\ %{}) do
     Index.changeset(index, attrs)
   end
+
+  def enable(%Index{enabled_at: nil} = index) do
+    index
+    |> Index.changeset(%{enabled_at: DateTime.utc_now()})
+    |> Repo.update()
+    |> tap(&add_serving/1)
+  end
+
+  def enable(index), do: {:ok, index}
+
+  def disable(%Index{enabled_at: enabled_at} = index) when not is_nil(enabled_at) do
+    index
+    |> Index.changeset(%{enabled_at: nil})
+    |> Repo.update()
+    |> tap(&remove_serving/1)
+  end
+
+  def disable(index), do: {:ok, index}
+
+  def first_enabled do
+    Index
+    |> where([i], not is_nil(i.enabled_at))
+    |> order_by(asc: :enabled_at)
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  def exists_enabled? do
+    Index
+    |> where([i], not is_nil(i.enabled_at))
+    |> Repo.exists?()
+  end
+
+  defp add_serving({:ok, %Index{enabled_at: enabled_at} = index}) when not is_nil(enabled_at) do
+    Server.add_serving(index)
+  end
+
+  defp add_serving(_other), do: :noop
+
+  defp remove_serving({:ok, %Index{enabled_at: nil} = index}) do
+    Server.remove_serving(index)
+  end
+
+  defp remove_serving(_other), do: :noop
 end

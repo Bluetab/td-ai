@@ -27,8 +27,10 @@ td_ai-*.tar
 
 /priv/plts/*.plt
 /priv/plts/*.plt.hash
+priv/models/
 
 .tool-versions
 .DS_Store
 .elixir_ls
 TODO.*
+

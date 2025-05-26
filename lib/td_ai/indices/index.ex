@@ -13,6 +13,7 @@ defmodule TdAi.Indices.Index do
     field(:index_type, :string)
     field(:index_params, :map)
     field(:status, :string)
+    field(:enabled_at, :utc_datetime_usec)
 
     timestamps()
   end
@@ -27,14 +28,13 @@ defmodule TdAi.Indices.Index do
       :metric_type,
       :index_type,
       :index_params,
-      :status
+      :status,
+      :enabled_at
     ])
     |> validate_required([
       :collection_name,
-      :embedding,
-      :mapping,
-      :metric_type,
-      :index_type
+      :embedding
     ])
+    |> unique_constraint(:collection_name)
   end
 end

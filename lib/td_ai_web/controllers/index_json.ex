@@ -24,7 +24,8 @@ defmodule TdAiWeb.IndexJSON do
       metric_type: index.metric_type,
       index_type: index.index_type,
       index_params: index.index_params,
-      status: index.status
+      status: index.status,
+      enabled_at: index.enabled_at
     }
   end
 end
