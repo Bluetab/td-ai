@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.5.2] 2025-06-04
+
+### Changed
+
+- [TD-6219] Don't load collection when creating an index
+
 ## [7.5.1] 2025-05-26
 
 ### Added
