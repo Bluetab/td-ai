@@ -59,7 +59,7 @@ defmodule TdAi.MixProject do
       {:jason, "~> 1.4.4"},
       {:vaultex, "~> 1.0.1"},
       {:httpoison, "~> 2.2.1", override: true},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.5.2"},
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.5.3"},
       {:scholar, "~> 0.3.1"},
       {:exla, "~> 0.9.2"},
       {:bumblebee, "~> 0.6.0"},
