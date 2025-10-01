@@ -75,11 +75,6 @@ defmodule TdAi.IndicesTest do
       assert {:ok, %Index{}} = Indices.delete_index(index)
       assert_raise Ecto.NoResultsError, fn -> Indices.get_index!(index.id) end
     end
-
-    test "change_index/1 returns a index changeset" do
-      index = insert(:index)
-      assert %Ecto.Changeset{} = Indices.change_index(index)
-    end
   end
 
   describe "enable/1" do

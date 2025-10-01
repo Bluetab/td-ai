@@ -6,7 +6,7 @@ defmodule TdAi.Indices do
   import Ecto.Query, warn: false
   alias TdAi.Repo
 
-  alias TdAi.Embeddings.Server
+  alias TdAi.Embeddings.ServingLoader
   alias TdAi.Indices.Index
 
   defdelegate authorize(action, user, params), to: __MODULE__.Policy
@@ -102,19 +102,6 @@ defmodule TdAi.Indices do
     |> tap(&remove_serving/1)
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking index changes.
-
-  ## Examples
-
-      iex> change_index(index)
-      %Ecto.Changeset{data: %Index{}}
-
-  """
-  def change_index(%Index{} = index, attrs \\ %{}) do
-    Index.changeset(index, attrs)
-  end
-
   def enable(%Index{enabled_at: nil} = index) do
     index
     |> Index.changeset(%{enabled_at: DateTime.utc_now()})
@@ -148,13 +135,13 @@ defmodule TdAi.Indices do
   end
 
   defp add_serving({:ok, %Index{enabled_at: enabled_at} = index}) when not is_nil(enabled_at) do
-    Server.add_serving(index)
+    ServingLoader.add_serving(index)
   end
 
   defp add_serving(_other), do: :noop
 
   defp remove_serving({:ok, %Index{enabled_at: nil} = index}) do
-    Server.remove_serving(index)
+    ServingLoader.remove_serving(index)
   end
 
   defp remove_serving(_other), do: :noop
