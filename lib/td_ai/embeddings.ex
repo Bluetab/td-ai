@@ -17,7 +17,7 @@ defmodule TdAi.Embeddings do
   """
   @behaviour TdAi.Embeddings.Behaviour
 
-  alias TdAi.Embeddings.Server
+  alias TdAi.Embeddings.ServingSupervisor
   alias TdAi.Indices
 
   def load_local_serving(model_name, opts \\ []) do
@@ -31,17 +31,24 @@ defmodule TdAi.Embeddings do
   end
 
   def all(texts) do
-    Enum.into(Server.get_servings(), %{}, fn {collection_name, serving} ->
-      {collection_name, vector_for_serving(serving, texts)}
+    [enabled: true]
+    |> Indices.list_indices()
+    |> Enum.map(fn %Indices.Index{collection_name: collection_name} ->
+      generate_vector(texts, collection_name)
     end)
+    |> Enum.reject(&(&1 == :noop))
+    |> Map.new()
   end
 
   def generate_vector(text, collection_name \\ nil)
 
   def generate_vector(text, collection_name) when is_binary(collection_name) do
-    case Server.get_serving(collection_name) do
-      %{} = serving -> {collection_name, vector_for_serving(serving, text)}
-      nil -> :noop
+    worker = String.to_existing_atom(collection_name)
+
+    if ServingSupervisor.exists?(worker) do
+      {collection_name, predict(worker, text)}
+    else
+      :noop
     end
   end
 
@@ -52,18 +59,18 @@ defmodule TdAi.Embeddings do
     end
   end
 
-  defp vector_for_serving(%{multiple: %Nx.Serving{} = serving}, texts) when is_list(texts) do
+  defp predict(name, texts) do
     texts = normalize(texts)
 
-    serving
-    |> Nx.Serving.run(texts)
-    |> Enum.map(fn %{embedding: tensor} -> Nx.to_flat_list(tensor) end)
-  end
+    name
+    |> Nx.Serving.batched_run(texts)
+    |> then(fn
+      embeddings when is_list(embeddings) ->
+        Enum.map(embeddings, fn %{embedding: tensor} -> Nx.to_flat_list(tensor) end)
 
-  defp vector_for_serving(%{single: %Nx.Serving{} = serving}, text) do
-    text = normalize(text)
-    %{embedding: embedding} = Nx.Serving.run(serving, text)
-    Nx.to_flat_list(embedding)
+      %{embedding: tensor} ->
+        Nx.to_flat_list(tensor)
+    end)
   end
 
   defp normalize(texts) when is_list(texts) do
