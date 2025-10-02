@@ -20,6 +20,10 @@ if System.get_env("PHX_SERVER") do
   config :td_ai, TdAiWeb.Endpoint, server: true
 end
 
+config :td_cache, :audit, maxlen: System.get_env("REDIS_AUDIT_STREAM_MAXLEN", "100")
+
+config :td_cache, :event_stream, maxlen: System.get_env("REDIS_STREAM_MAXLEN", "100")
+
 if config_env() == :prod do
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
