@@ -9,6 +9,10 @@
   - Use nx serving as process.
   - Use model's native batching.
 
+### Changed
+
+- [TD-7401] Update td-core version
+
 ## [7.7.0] 2025-06-30
 
 ### Added

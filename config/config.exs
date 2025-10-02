@@ -48,6 +48,15 @@ config :td_ai, :gen_ai_module, TdAi.GenAi
 
 config :td_ai, :model_path, "priv/models"
 
+config :td_cache, :audit,
+  service: "td_ai",
+  stream: "audit:events"
+
+config :td_cache, :event_stream,
+  consumer_id: "default",
+  consumer_group: "ai",
+  streams: []
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
