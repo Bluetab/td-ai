@@ -36,7 +36,8 @@ defmodule TdAi.Application do
       TdAi.Milvus,
       TdAi.NxServings,
       TdAi.GenAi,
-      TdAi.Embeddings.Server
+      TdAi.Embeddings.ServingSupervisor,
+      TdAi.Embeddings.ServingLoader
     ]
   end
 

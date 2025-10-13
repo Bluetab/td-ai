@@ -1,5 +1,18 @@
 # Changelog
 
+## [7.11.0] 2025-10-13
+
+### Added
+
+- [TD-7466]: 
+  - Reduces number of servings in memory to one per index.
+  - Use nx serving as process.
+  - Use model's native batching.
+
+### Changed
+
+- [TD-7401] Update td-core version
+
 ## [7.7.0] 2025-06-30
 
 ### Added
