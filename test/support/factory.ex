@@ -13,7 +13,17 @@ defmodule TdAi.Factory do
   alias TdAi.Completion.Suggestion
   alias TdAi.Completion.Translation
   alias TdAi.Indices.Index
+  alias TdAi.Knowledges.Knowledge
   alias TdAi.Predictions.Prediction
+
+  def domain_factory do
+    %{
+      name: sequence("domain_name"),
+      id: System.unique_integer([:positive]),
+      external_id: sequence("domain_external_id"),
+      updated_at: DateTime.utc_now()
+    }
+  end
 
   def action_factory(attrs \\ %{}) do
     %Action{
@@ -134,6 +144,17 @@ defmodule TdAi.Factory do
   def provider_properties_mock_factory(attrs) do
     %ProviderProperties.Mock{
       model: "some model"
+    }
+    |> merge_attributes(attrs)
+  end
+
+  def knowledge_factory(attrs \\ %{}) do
+    %Knowledge{
+      name: "some name",
+      description: "some description",
+      filename: "some filename",
+      format: "some format",
+      md5: "some md5"
     }
     |> merge_attributes(attrs)
   end

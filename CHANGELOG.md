@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- [TD-7302] RAG functionality
+
 ## [7.11.0] 2025-10-13
 
 ### Added

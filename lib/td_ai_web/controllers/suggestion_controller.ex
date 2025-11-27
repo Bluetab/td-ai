@@ -4,6 +4,7 @@ defmodule TdAiWeb.SuggestionController do
   alias TdAi.Completion
   alias TdAi.Completion.Suggestion
   alias TdAi.FieldCompletion
+  alias TdAi.Search.SemanticSearch
   alias TdCache.I18nCache
   alias TdDfLib.Templates
 
@@ -95,14 +96,18 @@ defmodule TdAiWeb.SuggestionController do
         } = params
       ) do
     {:ok, default_locale} = I18nCache.get_default_locale()
+
     language = Map.get(params, "language", default_locale)
+
     %{user_id: user_id} = claims = conn.assigns[:current_resource]
 
     with :ok <-
            Bodyguard.permit(Completion, :request_suggestion, claims, {resource_type, domain_ids}),
-         {:ok, fields} <- Templates.suggestion_fields_for_template(template_id) do
+         {:ok, fields} <- Templates.suggestion_fields_for_template(template_id),
+         {:ok, semantic_search} <- SemanticSearch.semantic_search(resource_body, domain_ids) do
       FieldCompletion.resource_field_completion(
         "business_concept",
+        semantic_search,
         resource_body,
         fields,
         language: language,

@@ -30,7 +30,7 @@ defmodule TdAi.MixProject do
   def application do
     [
       mod: {TdAi.Application, []},
-      extra_applications: [:logger, :runtime_tools, :vaultex]
+      extra_applications: [:logger, :runtime_tools, :vaultex, :oban]
     ]
   end
 
@@ -59,14 +59,16 @@ defmodule TdAi.MixProject do
       {:jason, "~> 1.4.4"},
       {:vaultex, "~> 1.0.1"},
       {:httpoison, "~> 2.2.1", override: true},
-      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.11.1"},
+      {:td_core, git: "https://github.com/Bluetab/td-core.git", tag: "7.14.0"},
       {:scholar, "~> 0.3.1"},
       {:exla, "~> 0.10.0"},
-      {:bumblebee, "~> 0.6.3"},
+      {:bumblebee, "~> 0.6.0"},
       {:req, "~> 0.5.8"},
+      {:oban, "~> 2.6"},
       {:openai, "~> 0.6.2"},
       {:ex_aws, "~> 2.5.8 "},
       {:ex_aws_bedrock, "~> 2.5.1"},
+      {:quantum, "~> 3.0"},
       {:credo, "~> 1.7.11", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
       {:ex_machina, "~> 2.8", only: :test},
@@ -86,7 +88,11 @@ defmodule TdAi.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "python.setup": [
+        "cmd python3 -m venv priv/python/.venv/td_ai",
+        "cmd priv/python/.venv/td_ai/bin/pip install -r priv/python/requirements.txt"
+      ]
     ]
   end
 end

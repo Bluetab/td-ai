@@ -19,6 +19,12 @@ defmodule TdAi.IndicesTest do
       assert Indices.list_indices() == [index]
     end
 
+    test "list_indices/1 returns indices with given index_type" do
+      index = insert(:index, index_type: "rag")
+      assert Indices.list_indices(index_type: "rag") == [index]
+      assert Indices.list_indices(index_type: "suggestions") == []
+    end
+
     test "get_index!/1 returns the index with given id" do
       index = insert(:index)
       assert Indices.get_index!(index.id) == index
@@ -129,7 +135,7 @@ defmodule TdAi.IndicesTest do
     end
   end
 
-  describe "exists_enabled?" do
+  describe "exists_enabled?/1" do
     test "checks if there are enabled indices" do
       insert(:index, enabled_at: nil)
       refute Indices.exists_enabled?()

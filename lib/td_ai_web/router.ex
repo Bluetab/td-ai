@@ -49,6 +49,10 @@ defmodule TdAiWeb.Router do
     post "/suggestions/availability_check", SuggestionController, :availability_check
     post "/suggestions/request", SuggestionController, :request
 
+    resources "/knowledges", KnowledgeController, except: [:new, :edit] do
+      put "/file", KnowledgeController, :update_file, as: :file
+    end
+
     resources "/translations", TranslationController, except: [:new, :edit]
     post "/translations/availability_check", TranslationController, :availability_check
     post "/translations/request", TranslationController, :request

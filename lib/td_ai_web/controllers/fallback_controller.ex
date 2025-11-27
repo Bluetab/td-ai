@@ -58,6 +58,13 @@ defmodule TdAiWeb.FallbackController do
     |> render(:error, message: message)
   end
 
+  def call(conn, {:error, :conflict, message}) do
+    conn
+    |> put_status(:conflict)
+    |> put_view(json: TdAiWeb.ErrorJSON)
+    |> render(:error, message: message)
+  end
+
   # This clause is an example of how to handle resources that cannot be found.
   def call(conn, error) do
     Logger.warning("Unhandled controller fallback: " <> inspect(error))

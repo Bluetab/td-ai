@@ -33,6 +33,10 @@ defmodule TdAiWeb.ConnCase do
 
       import TdAi.Factory
       import TdAi.TestOperators
+
+      def upload(path) do
+        %Plug.Upload{path: path, filename: Path.basename(path)}
+      end
     end
   end
 
