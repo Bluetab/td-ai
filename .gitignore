@@ -33,4 +33,4 @@ priv/models/
 .DS_Store
 .elixir_ls
 TODO.*
-
+.venv
