@@ -4,7 +4,9 @@
 
 ### Added
 
-- [TD-7302] RAG functionality
+- [TD-7302] 
+  - RAG functionality
+  - Python image
 
 ## [7.11.0] 2025-10-13
 
