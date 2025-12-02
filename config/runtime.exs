@@ -26,7 +26,7 @@ config :td_cache, :event_stream, maxlen: System.get_env("REDIS_STREAM_MAXLEN", "
 
 config :td_ai,
        :python,
-       System.get_env("PYTHON_BINARY", Path.absname("priv/python/.venv/td_ai/bin/python"))
+       System.get_env("PYTHON_BINARY", Path.absname(".venv/td_ai/bin/python"))
 
 if config_env() == :prod do
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []

@@ -57,8 +57,6 @@ config :td_df_lib, :templates_module, TdCluster.Cluster.TdDf.Templates
 
 config :bodyguard, default_error: :forbidden
 
-config :td_ai, :python_script, Path.absname("priv/python/docling_parser.py")
-
 config :td_ai, TdAi.Knowledges, uploads_tmp_folder: "/tmp/td_ai/uploads"
 
 # Configures Elixir's Logger
