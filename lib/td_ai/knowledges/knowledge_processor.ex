@@ -21,7 +21,6 @@ defmodule TdAi.Knowledges.KnowledgeProcessor do
 
   require Logger
 
-  @python_script Application.compile_env!(:td_ai, :python_script)
   @chunks_processor Application.compile_env(:td_ai, :chunks_processor)
   @vector_generator Application.compile_env(:td_ai, :vector_generator)
 
@@ -76,8 +75,9 @@ defmodule TdAi.Knowledges.KnowledgeProcessor do
 
   def chunks_kwnowledge(%{"path" => file_path}) do
     python = Application.get_env(:td_ai, :python)
+    python_script = Path.join([:code.priv_dir(:td_ai), "python", "src", "docling_parser.py"])
 
-    case System.cmd(python, [@python_script, file_path]) do
+    case System.cmd(python, [python_script, file_path]) do
       {output, 0} ->
         Logger.debug("Python script output: #{String.slice(output, 0, 200)}...")
 

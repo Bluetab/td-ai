@@ -90,8 +90,8 @@ defmodule TdAi.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "python.setup": [
-        "cmd python3 -m venv priv/python/.venv/td_ai",
-        "cmd priv/python/.venv/td_ai/bin/pip install -r priv/python/requirements.txt"
+        "cmd python3 -m venv .venv/td_ai",
+        "cmd .venv/td_ai/bin/pip install -r priv/python/requirements.txt"
       ]
     ]
   end
