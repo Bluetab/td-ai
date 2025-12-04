@@ -9,11 +9,11 @@ defmodule TdAi.Embeddings.Behaviour do
   @callback generate_vector(text :: binary(), index_type :: binary()) ::
               {binary(), [float()]} | :noop
   @callback generate_vector(
-              text :: binary(),
+              text :: binary() | [binary()],
               index_type :: binary(),
               collection_name :: binary() | nil
             ) ::
-              {binary(), [float()]} | :noop
+              {binary(), [float()] | [[float()]]} | :noop
   @callback generate_vector(text :: binary(), index_type :: binary()) ::
               {binary(), [float()]} | :noop
 end
@@ -61,8 +61,11 @@ defmodule TdAi.Embeddings do
 
   def generate_vector(text, index_type, nil) do
     case Indices.first_enabled(index_type: index_type) do
-      %Indices.Index{collection_name: collection_name} -> generate_vector(text, collection_name)
-      nil -> :noop
+      %Indices.Index{collection_name: collection_name} ->
+        generate_vector(text, index_type, collection_name)
+
+      nil ->
+        :noop
     end
   end
 

@@ -50,9 +50,10 @@ defmodule TdAi.Knowledges.KnowledgeProcessor do
         |> Map.put("md5", file_md5)
         |> Map.put("filename", filename)
         |> Map.put("format", Path.extname(filename) |> String.trim_leading("."))
-        |> add_embedding(collections)
+        |> Map.put("embedding", %{})
         |> KnowledgeChunk.transform()
       end)
+      |> add_embeddings(collections)
 
     Indexer.index_documents_batch(chunks)
     update_knowledge_status(file_md5, "completed", length(chunks))
@@ -94,16 +95,55 @@ defmodule TdAi.Knowledges.KnowledgeProcessor do
     end
   end
 
-  defp add_embedding(%{"text" => text} = chunk, collections) do
-    embeddings =
-      Enum.reduce(collections, %{}, fn %{collection_name: collection_name}, acc ->
-        {_, embedding} =
-          @vector_generator.generate_vector(text, @index_type, collection_name)
+  defp add_embeddings(chunks, collections) do
+    Logger.info(
+      "Calculating embeddings for #{length(chunks)} chunks of #{Enum.at(chunks, 0).filename}"
+    )
 
-        Map.put(acc, "vector_#{collection_name}", embedding)
-      end)
+    start_time = System.monotonic_time(:millisecond)
 
-    Map.put(chunk, "embedding", embeddings)
+    result =
+      chunks
+      |> Enum.chunk_every(128)
+      |> Enum.flat_map(&add_embeddings_to_batch(&1, collections))
+
+    elapsed_ms = System.monotonic_time(:millisecond) - start_time
+
+    Logger.info(
+      "Finished calculating embeddings for #{length(chunks)} chunks in #{elapsed_ms} ms"
+    )
+
+    result
+  end
+
+  defp add_embeddings_to_batch(batch_chunks, collections) do
+    texts = Enum.map(batch_chunks, & &1.text)
+    batch_embeddings_by_collection = build_batch_embeddings(texts, collections)
+
+    Enum.with_index(batch_chunks)
+    |> Enum.map(fn {chunk, index} ->
+      chunk_embeddings = build_chunk_embeddings(batch_embeddings_by_collection, index)
+      %{chunk | embedding: chunk_embeddings}
+    end)
+  end
+
+  defp build_batch_embeddings(texts, collections) do
+    Enum.reduce(collections, %{}, fn %{collection_name: collection_name}, acc ->
+      case @vector_generator.generate_vector(texts, @index_type, collection_name) do
+        {^collection_name, embeddings} when is_list(embeddings) ->
+          Map.put(acc, collection_name, embeddings)
+
+        _ ->
+          acc
+      end
+    end)
+  end
+
+  defp build_chunk_embeddings(batch_embeddings_by_collection, index) do
+    Enum.reduce(batch_embeddings_by_collection, %{}, fn {collection_name, embeddings_list}, acc ->
+      embedding = Enum.at(embeddings_list, index)
+      Map.put(acc, "vector_#{collection_name}", embedding)
+    end)
   end
 
   defp delete_tmp_file(file_path) do
