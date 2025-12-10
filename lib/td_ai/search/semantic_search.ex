@@ -24,15 +24,18 @@ defmodule TdAi.Search.SemanticSearch do
     %{name: domain_name} = TaxonomyCache.get_domain(domain_id)
 
     # TODO TD-7302: Collect name should be passed as a parameter or get the first one
-    %{collection_name: collection_name} =
-      Indices.first_enabled(index_type: to_string(@index_type))
+    case Indices.first_enabled(index_type: to_string(@index_type)) do
+      nil ->
+        {:ok, []}
 
-    [name, domain_name]
-    |> Enum.map(fn query ->
-      do_semantic_search(query, collection_name, opts)
-    end)
-    |> List.flatten()
-    |> then(&{:ok, &1})
+      %{collection_name: collection_name} ->
+        [name, domain_name]
+        |> Enum.map(fn query ->
+          do_semantic_search(query, collection_name, opts)
+        end)
+        |> List.flatten()
+        |> then(&{:ok, &1})
+    end
   end
 
   def semantic_search(_resource_body, _domain_ids, _opts), do: {:ok, []}
