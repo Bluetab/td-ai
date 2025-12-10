@@ -16,7 +16,7 @@ defmodule TdAi.Indices do
 
   ## Examples
 
-      iex> list_indices(%{enabled: true})
+      iex> list_indices(%{index_type: "suggestions", enabled: true})
       [%Index{}, ...]
 
   """
@@ -25,6 +25,7 @@ defmodule TdAi.Indices do
     |> Enum.reduce(Index, fn
       {:enabled, true}, q -> where(q, [i], not is_nil(i.enabled_at))
       {:enabled, false}, q -> where(q, [i], is_nil(i.enabled_at))
+      {:index_type, value}, q -> where(q, [i], i.index_type == ^value)
       _, q -> q
     end)
     |> Repo.all()
@@ -120,16 +121,24 @@ defmodule TdAi.Indices do
 
   def disable(index), do: {:ok, index}
 
-  def first_enabled do
-    Index
+  def first_enabled(args \\ %{}) do
+    args
+    |> Enum.reduce(Index, fn
+      {:index_type, value}, q -> where(q, [i], i.index_type == ^value)
+      _, q -> q
+    end)
     |> where([i], not is_nil(i.enabled_at))
     |> order_by(asc: :enabled_at)
     |> limit(1)
     |> Repo.one()
   end
 
-  def exists_enabled? do
-    Index
+  def exists_enabled?(args \\ %{}) do
+    args
+    |> Enum.reduce(Index, fn
+      {:index_type, value}, q -> where(q, [i], i.index_type == ^value)
+      _, q -> q
+    end)
     |> where([i], not is_nil(i.enabled_at))
     |> Repo.exists?()
   end

@@ -10,9 +10,12 @@ defmodule TdAi.FieldCompletion do
   alias TdCache.I18nCache
   alias TdCore.Utils.Timer
 
-  def resource_field_completion(resource_type, resource, fields, opts \\ [])
+  def resource_field_completion(resource_type, resource, fields, opts)
+      when resource_type not in ["business_concept"] do
+    resource_field_completion(resource_type, [], resource, fields, opts)
+  end
 
-  def resource_field_completion(resource_type, %{} = resource, fields, opts) do
+  def resource_field_completion(resource_type, semantic_search, %{} = resource, fields, opts) do
     {:ok, default_locale} = I18nCache.get_default_locale()
     language = Keyword.get(opts, :language, default_locale)
     requested_by = Keyword.get(opts, :requested_by)
@@ -26,7 +29,8 @@ defmodule TdAi.FieldCompletion do
           } = prompt} <-
            {:prompt, Completion.get_prompt_by_resource_and_language(resource_type, language)},
          {:user_prompt, user_prompt} when is_binary(user_prompt) <-
-           {:user_prompt, PromptParser.generate_user_prompt(prompt, fields, resource, opts)} do
+           {:user_prompt,
+            PromptParser.generate_user_prompt(prompt, fields, resource, semantic_search, opts)} do
       Timer.time(
         fn ->
           messages = Messages.simple_prompt(system_prompt, user_prompt)
@@ -64,7 +68,7 @@ defmodule TdAi.FieldCompletion do
     end
   end
 
-  def resource_field_completion(resource_type, resource_id, fields, opts) do
+  def resource_field_completion(resource_type, semantic_search, resource_id, fields, opts) do
     {:ok, default_locale} = I18nCache.get_default_locale()
     language = Keyword.get(opts, :language, default_locale)
     requested_by = Keyword.get(opts, :requested_by)
@@ -82,10 +86,12 @@ defmodule TdAi.FieldCompletion do
          {:resource, %{} = resource} <-
            {:resource, PromptParser.parse(resource_mapping, resource_type, resource_id)},
          {:user_prompt, user_prompt} when is_binary(user_prompt) <-
-           {:user_prompt, PromptParser.generate_user_prompt(prompt, fields, resource)} do
+           {:user_prompt,
+            PromptParser.generate_user_prompt(prompt, fields, resource, semantic_search)} do
       Timer.time(
         fn ->
-          messages = Messages.simple_prompt(system_prompt, user_prompt)
+          messages =
+            Messages.simple_prompt(system_prompt, user_prompt)
 
           provider
           |> ProviderClient.chat_completion(messages)

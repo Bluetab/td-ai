@@ -31,7 +31,8 @@ defmodule TdAi.TranslationCompletion do
           } = prompt} <-
            {:prompt, Completion.get_prompt_by_resource_and_language("translation", language)},
          {:user_prompt, user_prompt} when is_binary(user_prompt) <-
-           {:user_prompt, PromptParser.generate_user_prompt(prompt, translation_body, %{}, opts)} do
+           {:user_prompt,
+            PromptParser.generate_user_prompt(prompt, translation_body, %{}, [], opts)} do
       Timer.time(
         fn ->
           messages = Messages.simple_prompt(system_prompt, user_prompt)

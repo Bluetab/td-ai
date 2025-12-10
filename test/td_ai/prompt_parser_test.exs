@@ -185,10 +185,17 @@ defmodule TdAi.PromptParserTest do
         }
       }
 
-      assert """
-               Data structure: {"metadata":{"database":"value"},"name":"ds_name"}
-               Fields to generate: [{"name":"field1","description":"Description"}]
-             """ = PromptParser.generate_user_prompt(prompt, fields, resource)
+      result = PromptParser.generate_user_prompt(prompt, fields, resource, [])
+
+      assert result =~ ~r/Data structure: (.+)\n/
+      resource_json = Regex.run(~r/Data structure: (.+)\n/, result) |> List.last()
+      assert {:ok, decoded_resource} = Jason.decode(resource_json)
+      assert decoded_resource == resource
+
+      assert result =~ ~r/Fields to generate: (.+)\n/
+      fields_json = Regex.run(~r/Fields to generate: (.+)\n/, result) |> List.last()
+      assert {:ok, decoded_fields} = Jason.decode(fields_json)
+      assert decoded_fields == Jason.decode!(Jason.encode!(fields))
     end
   end
 end

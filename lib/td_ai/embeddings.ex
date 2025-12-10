@@ -5,9 +5,16 @@ defmodule TdAi.Embeddings.Behaviour do
   @callback load_local_serving(model_name :: binary()) :: Nx.Serving.t() | {:error, term()}
   @callback load_local_serving(model_name :: binary(), opts :: Keyword.t()) ::
               Nx.Serving.t() | {:error, term()}
-  @callback all([binary()]) :: %{binary() => [float()]}
-  @callback generate_vector(text :: binary()) :: {binary(), [float()]} | :noop
-  @callback generate_vector(text :: binary(), collection_name :: binary() | nil) ::
+  @callback all([binary()], index_type :: binary()) :: %{binary() => [float()]}
+  @callback generate_vector(text :: binary(), index_type :: binary()) ::
+              {binary(), [float()]} | :noop
+  @callback generate_vector(
+              text :: binary() | [binary()],
+              index_type :: binary(),
+              collection_name :: binary() | nil
+            ) ::
+              {binary(), [float()] | [[float()]]} | :noop
+  @callback generate_vector(text :: binary(), index_type :: binary()) ::
               {binary(), [float()]} | :noop
 end
 
@@ -30,19 +37,19 @@ defmodule TdAi.Embeddings do
     end
   end
 
-  def all(texts) do
-    [enabled: true]
+  def all(texts, index_type) do
+    [enabled: true, index_type: index_type]
     |> Indices.list_indices()
     |> Enum.map(fn %Indices.Index{collection_name: collection_name} ->
-      generate_vector(texts, collection_name)
+      generate_vector(texts, index_type, collection_name)
     end)
     |> Enum.reject(&(&1 == :noop))
     |> Map.new()
   end
 
-  def generate_vector(text, collection_name \\ nil)
+  def generate_vector(text, index_type, collection_name \\ nil)
 
-  def generate_vector(text, collection_name) when is_binary(collection_name) do
+  def generate_vector(text, _index_type, collection_name) when is_binary(collection_name) do
     worker = String.to_existing_atom(collection_name)
 
     if ServingSupervisor.exists?(worker) do
@@ -52,10 +59,13 @@ defmodule TdAi.Embeddings do
     end
   end
 
-  def generate_vector(text, nil) do
-    case Indices.first_enabled() do
-      %Indices.Index{collection_name: collection_name} -> generate_vector(text, collection_name)
-      nil -> :noop
+  def generate_vector(text, index_type, nil) do
+    case Indices.first_enabled(index_type: index_type) do
+      %Indices.Index{collection_name: collection_name} ->
+        generate_vector(text, index_type, collection_name)
+
+      nil ->
+        :noop
     end
   end
 

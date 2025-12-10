@@ -36,12 +36,14 @@ defmodule TdAi.PromptParser do
         %Prompt{user_prompt_template: user_prompt_template},
         fields,
         resource,
+        semantic_search,
         opts \\ []
       ) do
     user_prompt_template
     |> String.replace("{fields}", Jason.encode!(fields))
     |> String.replace("{resource}", Jason.encode!(resource))
     |> String.replace("{locales}", Jason.encode!(Keyword.get(opts, :locales)))
+    |> String.replace("{semantic_search}", Jason.encode!(semantic_search))
   end
 
   defp put_value(_, _, :error), do: :error

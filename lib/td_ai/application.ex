@@ -18,9 +18,10 @@ defmodule TdAi.Application do
         # Start the PubSub system
         {Phoenix.PubSub, name: TdAi.PubSub},
         # Start the Endpoint (http/https)
-        TdAiWeb.Endpoint
+        TdAiWeb.Endpoint,
         # Start a worker by calling: TdAi.Worker.start_link(arg)
         # {TdAi.Worker, arg}
+        {Oban, Application.fetch_env!(:td_ai, Oban)}
       ] ++ workers(env)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -37,7 +38,8 @@ defmodule TdAi.Application do
       TdAi.NxServings,
       TdAi.GenAi,
       TdAi.Embeddings.ServingSupervisor,
-      TdAi.Embeddings.ServingLoader
+      TdAi.Embeddings.ServingLoader,
+      TdAi.Scheduler
     ]
   end
 

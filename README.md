@@ -28,6 +28,38 @@ docker build --build-arg APP_VERSION=0.1.0 .
 - `REDIS_AUDIT_STREAM_MAXLEN` (Optional) Maximum length for Redis audit stream. Default: 100
 - `REDIS_STREAM_MAXLEN` (Optional) Maximum length for Redis stream. Default: 100
 
+### Oban configuration
+
+- `OBAN_DB_SCHEMA` (Optional) Schema prefix to use for Oban tables. Default: `private`.
+- `OBAN_CREATE_SCHEMA` (Optional) Whether to auto-create the Oban schema at boot. Accepts `"true"`/`"false"`. Default: `true`.
+- `OBAN_KNOWLEDGE_QUEUE_WORKERS` (Optional) Number of workers for the knowledge_queue. Default: `1`.
+
+### Semantic Search Configuration
+
+The following environment variables control the behavior of semantic search:
+
+- `SEMANTIC_SEARCH_NUM_CANDIDATES` (Optional) Number of candidates to consider in KNN search. Default: 200
+- `SEMANTIC_SEARCH_K` (Optional) Number of top results to return from semantic search. Default: 20
+- `SEMANTIC_SEARCH_SIMILARITY` (Optional) Minimum similarity threshold for search results. Default: 0.30
+- `SEMANTIC_SEARCH_BOOST` (Optional) Boost factor for KNN search results. Default: 1.0
+
+### Python configuration
+
+To use and develop `knowledges` locally, you need a python virtual enviroment.
+
+You need to create a Python virtual environment. This command creates and configures a
+virtual environment with all dependencies:
+
+```sh
+mix python.setup
+```
+
+You can specify the python binary to use by setting the `PYTHON_BINARY` environment variable.
+
+- `PYTHON_BINARY` (Optional) Absolute path to the python binary. Default: `python`.
+  - **Note**: This path must be absolute, not relative.
+  - The python binary must have the dependencies listed in `priv/python/requirements.txt` installed.
+
 ### SSL conection
 
 - DB_SSL: boolean value, to enable TSL config, by default is false.

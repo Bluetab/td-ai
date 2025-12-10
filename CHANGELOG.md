@@ -1,10 +1,18 @@
 # Changelog
 
+## [7.14.0] 2025-12-10
+
+### Added
+
+- [TD-7302]
+  - RAG functionality
+  - Python image
+
 ## [7.11.0] 2025-10-13
 
 ### Added
 
-- [TD-7466]: 
+- [TD-7466]:
   - Reduces number of servings in memory to one per index.
   - Use nx serving as process.
   - Use model's native batching.

@@ -20,6 +20,8 @@ config :td_ai, TdAiWeb.Endpoint,
   secret_key_base: "f+UdlJ/JnU73cIL5riKC+FQ6JYN1Qsxei5XBj+J5vgHo1tfnTulOk+TwH3QzrqkP",
   server: false
 
+config :td_ai, Oban, testing: :manual
+
 config :td_cluster, TdCluster.ClusterHandler, MockClusterHandler
 
 # Print only warnings and errors during test
@@ -32,9 +34,14 @@ config :td_cache, redis_host: "redis", port: 6380
 
 config :td_ai, :gen_ai_module, TdAi.GenAiMock
 config :td_ai, :embeddings, TdAi.Embeddings.Mock
+config :td_ai, :chunks_processor, TdAi.MockHelper
+config :td_ai, :vector_generator, TdAi.MockHelper
+config :td_ai, TdAi.Knowledges, uploads_tmp_folder: "/tmp/td_ai_test/"
 
 config :td_ai, TdAi.Vault,
   token: "vault_secret_token1234",
   secrets_path: "secret/data/ai/"
 
 config :vaultex, vault_addr: "http://vault:8200"
+
+config :td_core, TdCore.Search.Cluster, api: ElasticsearchMock

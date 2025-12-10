@@ -24,6 +24,10 @@ config :td_cache, :audit, maxlen: System.get_env("REDIS_AUDIT_STREAM_MAXLEN", "1
 
 config :td_cache, :event_stream, maxlen: System.get_env("REDIS_STREAM_MAXLEN", "100")
 
+config :td_ai,
+       :python,
+       System.get_env("PYTHON_BINARY", Path.absname(".venv/td_ai/bin/python"))
+
 if config_env() == :prod do
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
@@ -89,4 +93,104 @@ if config_env() == :prod do
     options: System.get_env("AI_PROVIDER_PROXY_OPTIONS")
 
   config :td_ai, :model_path, System.get_env("MODEL_PATH", "priv/models")
+
+  config :td_ai, :python, System.get_env("PYTHON_BINARY", "python")
+
+  config :td_core, TdCore.Search.Cluster, url: System.fetch_env!("ES_URL")
+
+  with username when not is_nil(username) <- System.get_env("ES_USERNAME"),
+       password when not is_nil(password) <- System.get_env("ES_PASSWORD") do
+    config :td_core, TdCore.Search.Cluster,
+      username: username,
+      password: password
+  end
+
+  with api_key when not is_nil(api_key) <- System.get_env("ES_API_KEY") do
+    config :td_core, TdCore.Search.Cluster,
+      default_headers: [{"Authorization", "ApiKey #{api_key}"}]
+  end
 end
+
+# Semantic search configuration from environment variables
+config :td_ai, :semantic_search,
+  num_candidates: System.get_env("SEMANTIC_SEARCH_NUM_CANDIDATES", "200") |> String.to_integer(),
+  k: System.get_env("SEMANTIC_SEARCH_K", "20") |> String.to_integer(),
+  similarity: System.get_env("SEMANTIC_SEARCH_SIMILARITY", "0.30") |> String.to_float(),
+  boost: System.get_env("SEMANTIC_SEARCH_BOOST", "1.0") |> String.to_float()
+
+# Oban configuration
+config :td_ai, Oban,
+  prefix: System.get_env("OBAN_DB_SCHEMA", "private"),
+  plugins: [{Oban.Plugins.Pruner, max_age: 2 * 24 * 60 * 60}],
+  engine: Oban.Engines.Basic,
+  notifier: Oban.Notifiers.Postgres,
+  queues: [
+    knowledge_queue: System.get_env("OBAN_KNOWLEDGE_QUEUE_WORKERS", "5") |> String.to_integer(),
+    delete_units: 1
+  ],
+  repo: TdAi.Repo
+
+config :td_ai, oban_create_schema: System.get_env("OBAN_CREATE_SCHEMA", "true") == "true"
+
+optional_ssl_options =
+  case System.get_env("ES_SSL") do
+    "true" ->
+      cacertfile =
+        case System.get_env("ES_SSL_CACERTFILE", "generated") do
+          "generated" -> :certifi.cacertfile()
+          file -> file
+        end
+
+      [
+        ssl: [
+          cacertfile: cacertfile,
+          verify:
+            System.get_env("ES_SSL_VERIFY", "verify_none")
+            |> String.downcase()
+            |> String.to_atom()
+        ]
+      ]
+
+    _ ->
+      []
+  end
+
+elastic_default_options =
+  [
+    timeout: System.get_env("ES_TIMEOUT", "5000") |> String.to_integer(),
+    recv_timeout: System.get_env("ES_RECV_TIMEOUT", "40000") |> String.to_integer()
+  ] ++ optional_ssl_options
+
+config :td_core, TdCore.Search.Cluster,
+  delete_existing_index: System.get_env("DELETE_EXISTING_INDEX", "true") |> String.to_atom(),
+  forcemerge_options: [
+    wait_for_completion: System.get_env("ES_WAIT_FOR_COMPLETION", "nil") |> String.to_atom(),
+    max_num_segments: System.get_env("ES_MAX_NUM_SEGMENTS", "5") |> String.to_integer()
+  ],
+  default_options: elastic_default_options,
+  default_settings: %{
+    "number_of_shards" => System.get_env("ES_SHARDS", "1") |> String.to_integer(),
+    "number_of_replicas" => System.get_env("ES_REPLICAS", "1") |> String.to_integer(),
+    "refresh_interval" => System.get_env("ES_REFRESH_INTERVAL", "5s"),
+    "max_result_window" => System.get_env("ES_MAX_RESULT_WINDOW", "10000") |> String.to_integer(),
+    "index.indexing.slowlog.threshold.index.warn" =>
+      System.get_env("ES_INDEXING_SLOWLOG_THRESHOLD_WARN", "10s"),
+    "index.indexing.slowlog.threshold.index.info" =>
+      System.get_env("ES_INDEXING_SLOWLOG_THRESHOLD_INFO", "5s"),
+    "index.indexing.slowlog.threshold.index.debug" =>
+      System.get_env("ES_INDEXING_SLOWLOG_THRESHOLD_DEBUG", "2s"),
+    "index.indexing.slowlog.threshold.index.trace" =>
+      System.get_env("ES_INDEXING_SLOWLOG_THRESHOLD_TRACE", "500ms"),
+    # "index.indexing.slowlog.level" => System.get_env("ES_INDEXING_SLOWLOG_LEVEL", "info"),
+    "index.indexing.slowlog.source" => System.get_env("ES_INDEXING_SLOWLOG_SOURCE", "1000"),
+    "index.mapping.total_fields.limit" => System.get_env("ES_MAPPING_TOTAL_FIELDS_LIMIT", "3000")
+  }
+
+config :td_core, TdCore.Search.Cluster,
+  indexes: [
+    knowledge: [
+      # Controls the data ingestion rate by raising or lowering the number
+      # of items to send in each bulk request.
+      bulk_page_size: System.get_env("BULK_PAGE_SIZE_KNOWLEDGE", "1000") |> String.to_integer()
+    ]
+  ]
