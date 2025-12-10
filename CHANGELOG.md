@@ -4,7 +4,7 @@
 
 ### Added
 
-- [TD-7302] 
+- [TD-7302]
   - RAG functionality
   - Python image
 
@@ -12,7 +12,7 @@
 
 ### Added
 
-- [TD-7466]: 
+- [TD-7466]:
   - Reduces number of servings in memory to one per index.
   - Use nx serving as process.
   - Use model's native batching.
